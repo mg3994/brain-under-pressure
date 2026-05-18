@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antinna | Simplified Hardware & Home Services</title>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet.js (Open-source interactive maps) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb', /* Electric Cobalt */
+                            600: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        neutral: {
+                            850: '#1f2937',
+                            950: '#030712',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Leaflet custom styling to match minimalist design */
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 1rem;
+            z-index: 10;
+        }
+        .leaflet-container {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animations */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        .pulse-marker::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            border: 2px solid #2563eb;
+            animation: pulse-ring 1.5s infinite ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Onboarding Welcome / Sign-in Screen -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-100 text-center relative overflow-hidden transition-all duration-300 transform scale-100">
+            <!-- Decorative backdrop elements -->
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-50 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-50 rounded-full blur-2xl"></div>
+
+            <div class="relative">
+                <!-- App Logo -->
+                <div class="flex justify-center items-center gap-2 mb-6">
+                    <div class="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                        <i data-lucide="radio" class="w-6 h-6 stroke-[2.5]"></i>
+                    </div>
+                    <span class="font-display font-extrabold text-2xl tracking-tight bg-gradient-to-r from-slate-900 to-brand-500 bg-clip-text text-transparent">Antinna</span>
+                </div>
+
+                <h2 class="font-display font-bold text-2xl text-slate-800 mb-2">Welcome to Simple Living</h2>
+                <p class="text-slate-500 text-sm mb-8 leading-relaxed">
+                    Premium electrical & plumbing hardware combined with trusted on-demand technical service. Your home maintenance, streamlined.
+                </p>
+
+                <!-- Social Login Button -->
+                <button onclick="simulateGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3.5 px-5 rounded-2xl shadow-sm transition duration-200 active:scale-98">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.47 15.02 1 12 1 7.21 1 3.14 3.74 1.15 7.73l3.8 2.95C5.87 7.04 8.7 5.04 12 5.04z"/>
+                        <path fill="#4285F4" d="M23.45 12.3c0-.82-.07-1.61-.21-2.38H12v4.51h6.43c-.28 1.47-1.11 2.71-2.36 3.55l3.66 2.84c2.14-1.97 3.36-4.88 3.36-8.52z"/>
+                        <path fill="#FBBC05" d="M4.95 10.68A7.19 7.19 0 0 1 4.5 12c0 .46.08.91.22 1.35l-3.8 2.95C.33 15.09 0 13.58 0 12c0-1.58.33-3.09.92-4.52l4.03 3.2z"/>
+                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.66-2.84c-1.01.67-2.3 1.08-4.3 1.08-3.3 0-6.13-2-7.05-4.69l-3.8 2.95C3.14 20.26 7.21 23 12 23z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <p class="text-xs text-slate-400 mt-6">By signing in, you agree to our Terms & Privacy Policy.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-100 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand & Navigation -->
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('catalog')">
+                    <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                        <i data-lucide="radio" class="w-5 h-5 stroke-[2.5]"></i>
+                    </div>
+                    <span class="font-display font-extrabold text-xl tracking-tight text-slate-900">Antinna</span>
+                </div>
+                <!-- Main Tabs Desktop -->
+                <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                    <button id="tab-btn-catalog" onclick="switchTab('catalog')" class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-white text-slate-900 shadow-sm">
+                        Browse Store
+                    </button>
+                    <button id="tab-btn-map" onclick="switchTab('map')" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200">
+                        Map Pin Drop
+                    </button>
+                    <button id="tab-btn-orders" onclick="switchTab('orders')" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200 flex items-center gap-2">
+                        My Orders
+                        <span id="active-orders-count" class="hidden bg-brand-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Profile & Notification Action Center -->
+            <div class="flex items-center gap-4">
+                <!-- Notifications Trigger -->
+                <button onclick="toggleNotificationDrawer()" class="relative p-2.5 hover:bg-slate-50 rounded-xl transition duration-150 text-slate-500">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="notification-badge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white hidden"></span>
+                </button>
+
+                <!-- Cart Indicator Desktop / Collapsed Tablet view -->
+                <button onclick="toggleCartDrawer()" class="relative p-2.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 rounded-xl transition duration-150 flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span id="cart-indicator-count" class="bg-brand-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">0</span>
+                </button>
+
+                <!-- Simulated User Profile -->
+                <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                    <img id="user-avatar" src="https://placehold.co/100x100/3b82f6/ffffff?text=U" alt="User avatar" class="w-8 h-8 rounded-full border-2 border-brand-100">
+                    <div class="hidden sm:block text-left">
+                        <div id="user-name" class="text-xs font-semibold text-slate-800">John Doe</div>
+                        <div id="user-phone-status" class="text-[10px] text-slate-400 font-medium">No Phone Linked</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+        
+        <!-- Left Workspace: Center Stage (Catalog / Map / Orders) -->
+        <section class="flex-1 bg-white rounded-3xl border border-slate-100 shadow-xs p-6 overflow-hidden flex flex-col min-h-[600px]">
+            
+            <!-- CATALOG TAB VIEW -->
+            <div id="tab-catalog" class="tab-content flex flex-col h-full">
+                <!-- Heading with dynamic sub-category switching -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <h1 class="font-display font-extrabold text-2xl text-slate-900 tracking-tight">Antinna Catalog</h1>
+                        <p class="text-slate-500 text-sm">Pick high-grade fittings or schedule premium professional service.</p>
+                    </div>
+                    <!-- Categories filter -->
+                    <div class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl self-start">
+                        <button onclick="filterCatalog('ALL')" class="cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-800 shadow-xs">All</button>
+                        <button onclick="filterCatalog('ELECTRICAL')" class="cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800">Electrical</button>
+                        <button onclick="filterCatalog('PLUMBING')" class="cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800">Plumbing</button>
+                        <button onclick="filterCatalog('SERVICES')" class="cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800">Installation Services</button>
+                    </div>
+                </div>
+
+                <!-- Catalog Grid -->
+                <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto pr-1 max-h-[520px]">
+                    <!-- Rendered Dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- MAP PRECISION DROP VIEW -->
+            <div id="tab-map" class="tab-content hidden flex flex-col h-full">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h1 class="font-display font-extrabold text-xl text-slate-900 tracking-tight">Deliver/Service Location</h1>
+                        <p class="text-slate-500 text-sm">Pan search then drag the marker precisely over your doorstep.</p>
+                    </div>
+                    <!-- Selection Indicator / Coordinates -->
+                    <div class="bg-brand-50 border border-brand-100 rounded-xl px-4 py-2 text-xs text-brand-900 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-brand-500"></i>
+                        <span>Coordinates Selected: <strong id="coords-display">Drag Pin to Set</strong></span>
+                    </div>
+                </div>
+
+                <!-- Interactive Search overlay -->
+                <div class="relative z-20 mb-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                        <input id="map-search-input" onkeyup="handleMapSearch(event)" type="text" placeholder="Type neighborhood, area, landmark (e.g. Connaught Place, New Delhi)..." class="w-full pl-12 pr-28 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10 outline-none text-sm font-medium transition duration-150">
+                        <button onclick="executeMockSearch()" class="absolute right-2 top-2 bg-brand-500 hover:bg-brand-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold transition duration-150">Search</button>
+                    </div>
+                    <!-- Quick drop dropdown simulations -->
+                    <div id="search-suggestions" class="absolute w-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg hidden overflow-hidden z-40">
+                        <button onclick="selectSuggestion('Connaught Place, New Delhi', [28.6304, 77.2177])" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition border-b border-slate-100 flex items-center gap-2"><i data-lucide="navigation" class="w-4 h-4 text-slate-400"></i>Connaught Place, New Delhi</button>
+                        <button onclick="selectSuggestion('Indiranagar, Bengaluru', [12.9718, 77.6412])" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition border-b border-slate-100 flex items-center gap-2"><i data-lucide="navigation" class="w-4 h-4 text-slate-400"></i>Indiranagar, Bengaluru</button>
+                        <button onclick="selectSuggestion('Andheri West, Mumbai', [19.1136, 72.8697])" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 transition border-b border-slate-100 flex items-center gap-2"><i data-lucide="navigation" class="w-4 h-4 text-slate-400"></i>Andheri West, Mumbai</button>
+                    </div>
+                </div>
+
+                <!-- Leaflet Frame Container -->
+                <div class="flex-1 relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[300px]">
+                    <div id="map"></div>
+                    <!-- Absolute prompt for doorstep detail -->
+                    <div class="absolute bottom-4 left-4 right-4 z-30 bg-white p-4 rounded-xl shadow-lg border border-slate-100 flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] font-bold text-slate-400 tracking-wider uppercase block mb-1">Entrance/Doorstep Notes</label>
+                            <input id="address-landmark-notes" type="text" placeholder="e.g. Gate 3, 2nd floor, opposite central dispensary" class="w-full text-xs py-2 px-3 border border-slate-200 rounded-lg outline-none focus:border-brand-500">
+                        </div>
+                        <button onclick="savePrecisionAddress()" class="w-full sm:w-auto shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-5 py-3 rounded-lg transition duration-150">Confirm Location Pin</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVE ORDERS & TRACKING VIEW -->
+            <div id="tab-orders" class="tab-content hidden flex flex-col h-full">
+                <div class="mb-6 pb-4 border-b border-slate-100">
+                    <h1 class="font-display font-extrabold text-2xl text-slate-900 tracking-tight">Active Orders Tracking</h1>
+                    <p class="text-slate-500 text-sm">Review your real-time delivery and technical assignment statuses.</p>
+                </div>
+
+                <div id="orders-list-container" class="flex-1 space-y-6 overflow-y-auto pr-1 max-h-[500px]">
+                    <!-- Mock Orders generated here -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Sidebar Area (Contextual: Cart / Checkout Panel) -->
+        <aside id="cart-aside" class="w-full md:w-80 lg:w-96 shrink-0 flex flex-col gap-6">
+            
+            <!-- Simplified Cart Panel -->
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-xs p-6 flex flex-col h-[520px]">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="text-brand-500 w-5 h-5"></i>
+                        <h2 class="font-display font-bold text-lg text-slate-900">Your Checkout Cart</h2>
+                    </div>
+                    <span id="cart-item-count" class="text-xs bg-brand-50 text-brand-600 font-bold px-2 py-1 rounded-lg">0 items</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="cart-empty-state" class="flex-1 flex flex-col items-center justify-center text-center p-4">
+                    <div class="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 mb-3">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-semibold text-slate-700 text-sm">Your cart is empty</h3>
+                    <p class="text-slate-400 text-xs mt-1 max-w-[200px]">Select plumbing/electrical supplies or book repairs to begin.</p>
+                </div>
+
+                <!-- Cart List -->
+                <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4 pr-1 hidden">
+                    <!-- Dynamic Cart Cards Rendered -->
+                </div>
+
+                <!-- Totals and Checkout Button -->
+                <div id="cart-footer" class="border-t border-slate-100 pt-4 mt-4 hidden">
+                    <div class="space-y-1.5 mb-4">
+                        <div class="flex justify-between text-xs text-slate-400 font-medium">
+                            <span>Subtotal</span>
+                            <span id="subtotal-val">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400 font-medium">
+                            <span>GST / Service Charge (18%)</span>
+                            <span id="tax-val">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-800 font-bold border-t border-dashed border-slate-200 pt-2 mt-2">
+                            <span>Total Amount</span>
+                            <span id="total-val" class="text-brand-600">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Verified Address Indicator -->
+                    <div id="verified-addr-banner" class="bg-slate-50 border border-slate-100 rounded-xl p-2.5 mb-4 flex items-start gap-2 cursor-pointer hover:bg-slate-100/50 transition" onclick="switchTab('map')">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5"></i>
+                        <div class="text-[10px] leading-normal">
+                            <div class="font-bold text-slate-600">DELIVERY/SERVICE DESTINATION</div>
+                            <div id="checkout-address-summary" class="text-rose-500 font-semibold">Coordinates not set yet! Tap to drop pin.</div>
+                        </div>
+                    </div>
+
+                    <button onclick="initiateCheckout()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/10 transition duration-150 flex items-center justify-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        Checkout Securely
+                    </button>
+                </div>
+            </div>
+
+            <!-- Information / Value Proposition Widget -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
+                <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-brand-500/10 rounded-full blur-xl"></div>
+                <div class="relative flex items-start gap-4">
+                    <div class="bg-white/10 p-2.5 rounded-xl">
+                        <i data-lucide="truck" class="w-5 h-5 text-brand-100"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-bold text-sm">Hyper-Local Logistics</h4>
+                        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                            Electrical & plumbing items ship in under 2 hours. Technicians arrive within your requested time slot.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- Unified Sliding Overlay (Firebase Notifications Drawers) -->
+    <div id="notif-drawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 ease-out border-l border-slate-100 flex flex-col">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 bg-brand-500 rounded-full animate-ping"></div>
+                <h3 class="font-display font-bold text-lg text-slate-900">Real-Time Activity Drawer</h3>
+            </div>
+            <button onclick="toggleNotificationDrawer()" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Scrollable Notifications container -->
+        <div id="notif-list-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <!-- Dynamically populated or empty state -->
+            <div class="text-center py-12 text-slate-400">
+                <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                <p class="text-xs">No notifications yet. Place orders to receive status updates.</p>
+            </div>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+            <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">FCM Synced Channel</span>
+            <button onclick="clearNotifications()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold">Clear All</button>
+        </div>
+    </div>
+
+    <!-- JIT Verification Phone/OTP Overlay Modal -->
+    <div id="jit-verification-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100">
+            <!-- Step 1: Mobile Phone input -->
+            <div id="jit-step-phone">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display font-bold text-lg text-slate-800">Complete JIT Verification</h3>
+                    <button onclick="closeJitModal()" class="p-1 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-slate-500 text-xs mb-4">Before checking out, we require a verified phone number for the technician/delivery updates.</p>
+                
+                <div class="mb-4">
+                    <label class="text-[10px] font-bold text-slate-400 tracking-wider uppercase block mb-1">Enter Phone Number</label>
+                    <div class="flex gap-2">
+                        <span class="bg-slate-100 border border-slate-200 text-slate-700 font-medium text-xs rounded-xl px-3 flex items-center">+91</span>
+                        <input id="jit-phone-input" type="number" placeholder="9876543210" class="flex-1 px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-brand-500">
+                    </div>
+                </div>
+
+                <button onclick="sendOtpCode()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl text-xs transition duration-150">Send 4-Digit Verification Code</button>
+            </div>
+
+            <!-- Step 2: OTP Entry -->
+            <div id="jit-step-otp" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-display font-bold text-lg text-slate-800">Enter OTP Verification</h3>
+                    <button onclick="closeJitModal()" class="p-1 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-slate-500 text-xs mb-4">We've sent a 4-digit confirmation SMS code. Use <span class="font-bold text-brand-600">8820</span> (mock code) to bypass verification.</p>
+
+                <div class="flex justify-center gap-3 mb-6">
+                    <input type="text" maxlength="1" class="otp-box w-12 h-12 text-center text-xl font-bold border border-slate-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none">
+                    <input type="text" maxlength="1" class="otp-box w-12 h-12 text-center text-xl font-bold border border-slate-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none">
+                    <input type="text" maxlength="1" class="otp-box w-12 h-12 text-center text-xl font-bold border border-slate-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none">
+                    <input type="text" maxlength="1" class="otp-box w-12 h-12 text-center text-xl font-bold border border-slate-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none">
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="verifyOtpCode()" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-4 rounded-xl text-xs transition duration-150">Verify & Continue</button>
+                    <button onclick="resetJitStep()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-xl text-xs transition duration-150">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GPay UPI QR Code Overlay Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 relative overflow-hidden">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 bg-brand-500 rounded-full animate-pulse"></span>
+                    <h3 class="font-display font-bold text-slate-900">Google Pay Dynamic UPI</h3>
+                </div>
+                <button onclick="closePaymentModal()" class="p-1 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Content details -->
+            <div class="text-center p-4 bg-slate-50 rounded-xl mb-4 border border-slate-100">
+                <p class="text-slate-400 text-xs">AMOUNT PAYABLE</p>
+                <h4 id="payment-amount" class="font-display font-extrabold text-2xl text-slate-900 mt-1">₹0.00</h4>
+                <div class="mt-2 text-[10px] bg-slate-200 text-slate-600 py-1 px-2.5 rounded-lg inline-block font-semibold">
+                    UPI: antinna@gpay
+                </div>
+            </div>
+
+            <!-- Mock QR Generation -->
+            <div class="flex flex-col items-center justify-center py-6">
+                <div class="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm mb-4">
+                    <!-- Dynamic URL API based QR code -->
+                    <img id="upi-qr-image" src="https://placehold.co/200x200/ffffff/000000?text=Antinna+UPI" alt="UPI QR Code" class="w-44 h-44">
+                </div>
+                <p class="text-[10px] text-slate-400 max-w-[280px] leading-relaxed">
+                    Scan via Google Pay, PhonePe, or BHIM UPI app. Valid transaction references will link immediately on our dashboard.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="simulateOrderCompletion()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl text-xs transition duration-150 flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    Simulate Payment Success (GPay Intent)
+                </button>
+                <button onclick="closePaymentModal()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 transition">Cancel and Edit Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts & Logic Assembly -->
+    <script>
+        // Catalog data with categories
+        const catalogItems = [
+            {
+                id: 'prod-001',
+                name: 'Standard Copper Wire Coil (1.5mm)',
+                category: 'ELECTRICAL',
+                price: 1250,
+                sku: 'ANT-E-15CWR',
+                description: 'Double insulated, heavy load carrying copper wire coil for standard home fittings.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Copper+Wire'
+            },
+            {
+                id: 'prod-002',
+                name: 'Modular Switch Plate (12 Module)',
+                category: 'ELECTRICAL',
+                price: 490,
+                sku: 'ANT-E-12MSW',
+                description: 'Premium impact-resistant switch framework with integrated silver alloy sockets.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Switch+Plate'
+            },
+            {
+                id: 'prod-003',
+                name: 'LED Batten Light (22W)',
+                category: 'ELECTRICAL',
+                price: 320,
+                sku: 'ANT-E-22LED',
+                description: 'Anti-glare, warm daylight luminaire with ultra efficiency ratings.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=LED+Batten'
+            },
+            {
+                id: 'prod-004',
+                name: 'Brass Compression Stop Cock',
+                category: 'PLUMBING',
+                price: 680,
+                sku: 'ANT-P-BCSC',
+                description: 'Dezincification-resistant solid brass stopcock. Maximum pressure resilient.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Brass+Valve'
+            },
+            {
+                id: 'prod-005',
+                name: 'Flexible PVC Waste Hose (1.2m)',
+                category: 'PLUMBING',
+                price: 150,
+                sku: 'ANT-P-PVCWH',
+                description: 'Heavy duty, expandable corrugated sink waste drainage connector.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=PVC+Waste'
+            },
+            {
+                id: 'prod-006',
+                name: 'Anti-Rust Teflon Tape Set (5x)',
+                category: 'PLUMBING',
+                price: 90,
+                sku: 'ANT-P-TEFT',
+                description: 'Industrial sealant thread locking teflon tape set for absolute leakproof piping.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Teflon+Tape'
+            },
+            {
+                id: 'serv-001',
+                name: 'Bathroom Water Leakage Remediation',
+                category: 'SERVICES',
+                price: 2490,
+                duration: '1.5 - 2 Hours',
+                description: 'Comprehensive pressure testing and gasket replacement of washroom fittings.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Plumber+Fix'
+            },
+            {
+                id: 'serv-002',
+                name: 'Distribution Board DB Overhaul',
+                category: 'SERVICES',
+                price: 1890,
+                duration: '1 - 1.5 Hours',
+                description: 'Replacing faulty MCBs, repairing load distributions, and thermal terminal sweeps.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Electrician+DB'
+            },
+            {
+                id: 'serv-003',
+                name: 'Under-Sink Water Purifier Installation',
+                category: 'SERVICES',
+                price: 1200,
+                duration: '1 Hour',
+                description: 'Tapping main line valve integration, drilling, mounting and pressure regulating flow setup.',
+                image: 'https://placehold.co/300x200/eff6ff/1e3a8a?text=Water+Purifier'
+            }
+        ];
+
+        // Core Application State
+        let state = {
+            user: {
+                loggedIn: false,
+                name: "John Doe",
+                phone: null,
+                phoneVerified: false,
+                address: null, // format: { lat, lng, formattedAddress, notes }
+            },
+            cart: [],
+            orders: [],
+            notifications: [],
+            mapInstance: null,
+            mapMarker: null,
+            currentCategoryFilter: 'ALL'
+        };
+
+        // Window Load Boot
+        window.onload = function() {
+            lucide.createIcons();
+            renderCatalog();
+            updateCartDisplay();
+            initLeafletMap();
+            
+            // Event listener for OTP box auto-shifting
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            otpBoxes.forEach((box, index) => {
+                box.addEventListener('keyup', (e) => {
+                    if (box.value.length === 1 && index < otpBoxes.length - 1) {
+                        otpBoxes[index + 1].focus();
+                    }
+                    if (e.key === 'Backspace' && index > 0) {
+                        otpBoxes[index - 1].focus();
+                    }
+                });
+            });
+        };
+
+        // UI Toast Helper (No native alert constraint)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = `p-4 rounded-xl shadow-lg border text-xs font-semibold flex items-center justify-between gap-3 bg-white transform translate-y-2 opacity-0 transition duration-300 pointer-events-auto`;
+            
+            let colorBorder = "border-slate-100";
+            let iconCode = "info";
+            
+            if (type === 'success') {
+                colorBorder = "border-emerald-100 bg-emerald-50 text-emerald-800";
+                iconCode = "check-circle";
+            } else if (type === 'error') {
+                colorBorder = "border-rose-100 bg-rose-50 text-rose-800";
+                iconCode = "alert-circle";
+            } else if (type === 'warning') {
+                colorBorder = "border-amber-100 bg-amber-50 text-amber-800";
+                iconCode = "alert-triangle";
+            } else {
+                colorBorder = "border-blue-100 bg-blue-50 text-blue-800";
+            }
+
+            toast.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="${iconCode}" class="w-4 h-4"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="text-slate-400 hover:text-slate-600 transition" onclick="this.parentElement.remove()">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto dismiss after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Firebase-Style Simulated Live Notification Channel
+        function addNotification(title, body, orderId = null) {
+            const notif = {
+                id: 'notif-' + Date.now(),
+                title,
+                body,
+                orderId,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                read: false
+            };
+            state.notifications.unshift(notif);
+            
+            // Show dynamic Toast Alert
+            showToast(`Notification: ${title}`, 'info');
+
+            // Draw lists
+            updateNotificationDrawer();
+        }
+
+        // Update Notification lists
+        function updateNotificationDrawer() {
+            const listContainer = document.getElementById('notif-list-container');
+            const badge = document.getElementById('notification-badge');
+            
+            const unreadCount = state.notifications.filter(n => !n.read).length;
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (state.notifications.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                        <p class="text-xs">No notifications yet. Place orders to receive status updates.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listContainer.innerHTML = state.notifications.map(notif => `
+                <div class="p-3 rounded-xl border ${notif.read ? 'bg-white border-slate-100' : 'bg-brand-50/50 border-brand-100'} hover:border-brand-200 transition text-left cursor-pointer" onclick="markNotifAsRead('${notif.id}')">
+                    <div class="flex justify-between items-start gap-2 mb-1">
+                        <h4 class="text-xs font-bold text-slate-800 leading-tight">${notif.title}</h4>
+                        <span class="text-[9px] text-slate-400 shrink-0 font-medium">${notif.timestamp}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-normal">${notif.body}</p>
+                    ${notif.orderId ? `<div class="mt-2 text-[9px] text-brand-600 font-bold flex items-center gap-1" onclick="switchTab('orders')"><i data-lucide="eye" class="w-3 h-3"></i> View Tracking Timeline</div>` : ''}
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        function markNotifAsRead(id) {
+            state.notifications = state.notifications.map(n => n.id === id ? { ...n, read: true } : n);
+            updateNotificationDrawer();
+        }
+
+        function clearNotifications() {
+            state.notifications = [];
+            updateNotificationDrawer();
+            showToast("Cleared active notification logs.");
+        }
+
+        // Simulated Google Auth Flow
+        function simulateGoogleLogin() {
+            state.user.loggedIn = true;
+            document.getElementById('auth-screen').classList.add('hidden');
+            
+            // Add custom welcome trigger notifications
+            addNotification("Access Channel Verified", "Successfully authenticated through Google OAuth integration.");
+            showToast("Authenticated via Google SSO!", "success");
+        }
+
+        // Tab Switching Mechanism
+        function switchTab(targetTab) {
+            // Hide all tab views
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Un-highlight navigation buttons
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "px-4 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-200 flex items-center gap-2";
+            });
+
+            // Show active
+            document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+            
+            // Highlight Button
+            const targetBtn = document.getElementById(`tab-btn-${targetTab}`);
+            if (targetBtn) {
+                targetBtn.className = "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-white text-slate-900 shadow-sm flex items-center gap-2";
+            }
+
+            // If map tab was loaded, invalidate Leaflet layout calculation to prevent rendering glitches
+            if (targetTab === 'map' && state.mapInstance) {
+                setTimeout(() => {
+                    state.mapInstance.invalidateSize();
+                }, 200);
+            }
+        }
+
+        // Catalog Categories Filtering
+        function filterCatalog(category) {
+            state.currentCategoryFilter = category;
+            
+            // Highlight Button
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                if (btn.innerText.toUpperCase() === category || (category === 'ALL' && btn.innerText.toUpperCase() === 'ALL')) {
+                    btn.className = "cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-800 shadow-xs";
+                } else {
+                    btn.className = "cat-filter-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800";
+                }
+            });
+            renderCatalog();
+        }
+
+        // Render catalog items dynamically
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            grid.innerHTML = '';
+
+            const filtered = catalogItems.filter(item => {
+                if (state.currentCategoryFilter === 'ALL') return true;
+                return item.category === state.currentCategoryFilter;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">No items matched your selection.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="group bg-white rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100/40 transition-all duration-300 flex flex-col overflow-hidden relative">
+                    <!-- Image and Tag -->
+                    <div class="relative overflow-hidden bg-slate-50 h-40">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/300x200?text=Antinna'">
+                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-[9px] font-extrabold tracking-wider text-slate-700 uppercase px-2.5 py-1 rounded-full shadow-xs">
+                            ${item.category}
+                        </span>
+                        ${item.duration ? `
+                        <span class="absolute bottom-3 left-3 bg-brand-500/90 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-lg flex items-center gap-1">
+                            <i data-lucide="clock" class="w-3 h-3"></i> ${item.duration}
+                        </span>` : ''}
+                    </div>
+
+                    <!-- Content info -->
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-1">
+                                <h3 class="text-sm font-bold text-slate-900 group-hover:text-brand-500 transition-colors line-clamp-1">${item.name}</h3>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-4 line-clamp-2">${item.description}</p>
+                        </div>
+
+                        <div>
+                            <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">SKU: ${item.sku}</div>
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="text-base font-extrabold text-slate-950">₹${item.price.toLocaleString()}</div>
+                                
+                                ${item.category === 'SERVICES' ? `
+                                    <button onclick="addToCart('${item.id}')" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition duration-150 flex items-center gap-1.5 shadow-sm shadow-brand-500/20 active:scale-95">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                                        Book Service
+                                    </button>
+                                ` : `
+                                    <button onclick="addToCart('${item.id}')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition duration-150 flex items-center gap-1.5 active:scale-95">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                        Add to Cart
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Cart State Actions
+        function addToCart(itemId) {
+            const item = catalogItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existing = state.cart.find(c => c.id === itemId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                state.cart.push({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    category: item.category,
+                    duration: item.duration || null,
+                    sku: item.sku,
+                    qty: 1,
+                    // Default scheduling dates for on-demand installation services
+                    scheduleDate: item.category === 'SERVICES' ? new Date(Date.now() + 86400000).toISOString().split('T')[0] : null,
+                    scheduleTime: item.category === 'SERVICES' ? '10:00' : null
+                });
+            }
+
+            updateCartDisplay();
+            showToast(`Added to your cart: ${item.name}`, 'success');
+        }
+
+        function updateCartQty(id, change) {
+            const item = state.cart.find(c => c.id === id);
+            if (!item) return;
+
+            item.qty += change;
+            if (item.qty <= 0) {
+                state.cart = state.cart.filter(c => c.id !== id);
+            }
+            updateCartDisplay();
+        }
+
+        function updateServiceSchedule(id, date, time) {
+            const item = state.cart.find(c => c.id === id);
+            if (!item) return;
+            if (date) item.scheduleDate = date;
+            if (time) item.scheduleTime = time;
+        }
+
+        function updateCartDisplay() {
+            const emptyState = document.getElementById('cart-empty-state');
+            const itemsContainer = document.getElementById('cart-items-container');
+            const footer = document.getElementById('cart-footer');
+            const indicatorCount = document.getElementById('cart-indicator-count');
+            const cartBadge = document.getElementById('cart-item-count');
+
+            const totalItems = state.cart.reduce((acc, c) => acc + c.qty, 0);
+            indicatorCount.innerText = totalItems;
+            cartBadge.innerText = `${totalItems} items`;
+
+            if (state.cart.length === 0) {
+                emptyState.classList.remove('hidden');
+                itemsContainer.classList.add('hidden');
+                footer.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            itemsContainer.classList.remove('hidden');
+            footer.classList.remove('hidden');
+
+            itemsContainer.innerHTML = state.cart.map(c => `
+                <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex flex-col gap-2 relative">
+                    <!-- Basic info -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="text-left">
+                            <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${c.name}</h4>
+                            <span class="text-[9px] text-slate-400 uppercase tracking-wide font-medium">${c.sku}</span>
+                        </div>
+                        <span class="text-xs font-extrabold text-slate-900 shrink-0">₹${(c.price * c.qty).toLocaleString()}</span>
+                    </div>
+
+                    <!-- Quantity increments / Scheduling panel -->
+                    <div class="flex items-center justify-between border-t border-slate-200/50 pt-2 mt-1">
+                        <!-- Incrementor controls -->
+                        <div class="flex items-center border border-slate-200 bg-white rounded-lg p-0.5">
+                            <button onclick="updateCartQty('${c.id}', -1)" class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-slate-900 transition"><i data-lucide="minus" class="w-3 h-3"></i></button>
+                            <span class="text-[11px] px-2 font-bold text-slate-800">${c.qty}</span>
+                            <button onclick="updateCartQty('${c.id}', 1)" class="w-5 h-5 flex items-center justify-center text-slate-500 hover:text-slate-900 transition"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                        </div>
+
+                        <!-- Price summary context -->
+                        <span class="text-[10px] text-slate-400 font-semibold">₹${c.price.toLocaleString()} each</span>
+                    </div>
+
+                    <!-- Dynamic Scheduler UI Card (Visible only if category is on-demand installation SERVICE) -->
+                    ${c.category === 'SERVICES' ? `
+                    <div class="bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg mt-1 text-left">
+                        <label class="text-[9px] font-bold text-indigo-700 tracking-wider uppercase block mb-1">Schedule Installation appointment</label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <input type="date" value="${c.scheduleDate}" onchange="updateServiceSchedule('${c.id}', this.value, null)" class="text-[10px] p-1 bg-white border border-indigo-200 rounded outline-none text-slate-700 font-semibold">
+                            <select onchange="updateServiceSchedule('${c.id}', null, this.value)" class="text-[10px] p-1 bg-white border border-indigo-200 rounded outline-none text-slate-700 font-semibold">
+                                <option value="09:00" ${c.scheduleTime === '09:00' ? 'selected' : ''}>09:00 AM</option>
+                                <option value="11:30" ${c.scheduleTime === '11:30' ? 'selected' : ''}>11:30 AM</option>
+                                <option value="14:00" ${c.scheduleTime === '14:00' ? 'selected' : ''}>02:00 PM</option>
+                                <option value="16:30" ${c.scheduleTime === '16:30' ? 'selected' : ''}>04:30 PM</option>
+                            </select>
+                        </div>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            // Calculate Subtotals & dynamic 18% GST (Tax)
+            const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const tax = Math.round(subtotal * 0.18);
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal-val').innerText = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('tax-val').innerText = `₹${tax.toLocaleString()}`;
+            document.getElementById('total-val').innerText = `₹${total.toLocaleString()}`;
+
+            // Sync with sidebar dynamic address parameters
+            updateCheckoutAddressSummary();
+            lucide.createIcons();
+        }
+
+        // Address Display Sync
+        function updateCheckoutAddressSummary() {
+            const summary = document.getElementById('checkout-address-summary');
+            if (state.user.address) {
+                summary.innerHTML = `<span class="text-emerald-600 font-bold">✓ Pin Locked!</span> <span class="text-slate-500">${state.user.address.notes || 'Doorstep selected.'}</span>`;
+            } else {
+                summary.innerHTML = `<span class="text-rose-500 font-semibold">Address pinpoint not selected yet! Drop marker.</span>`;
+            }
+        }
+
+        // Open-source Leaflet Map Setup with Default Draggable coordinates
+        function initLeafletMap() {
+            // Default center: Delhi, India
+            const defaultLat = 28.6139;
+            const defaultLng = 77.2090;
+
+            state.mapInstance = L.map('map', {
+                center: [defaultLat, defaultLng],
+                zoom: 13,
+                zoomControl: false
+            });
+
+            // Clean custom map styling using openstreetmap tile cache
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(state.mapInstance);
+
+            // Add zooming controls on top-right safely
+            L.control.zoom({ position: 'topright' }).addTo(state.mapInstance);
+
+            // Draggable Marker setup with dynamic Coordinate display outputs
+            const customIcon = L.divIcon({
+                className: 'relative pulse-marker flex justify-center items-center',
+                html: `<div class="w-5 h-5 bg-brand-500 border-2 border-white rounded-full shadow-lg shadow-brand-500/50"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            state.mapMarker = L.marker([defaultLat, defaultLng], {
+                draggable: true,
+                icon: customIcon
+            }).addTo(state.mapInstance);
+
+            // Handle coordinate extraction on dragging release
+            state.mapMarker.on('dragend', function(e) {
+                const position = state.mapMarker.getLatLng();
+                updateCoordsDisplay(position.lat, position.lng);
+            });
+
+            // Initial readout update
+            updateCoordsDisplay(defaultLat, defaultLng);
+        }
+
+        function updateCoordsDisplay(lat, lng) {
+            document.getElementById('coords-display').innerText = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        }
+
+        // Mock Google Places Search Suggestion Dropdown toggles
+        function handleMapSearch(event) {
+            const inputVal = event.target.value.trim();
+            const suggestions = document.getElementById('search-suggestions');
+            
+            if (inputVal.length > 2) {
+                suggestions.classList.remove('hidden');
+            } else {
+                suggestions.classList.add('hidden');
+            }
+        }
+
+        function selectSuggestion(addressText, coords) {
+            document.getElementById('map-search-input').value = addressText;
+            document.getElementById('search-suggestions').classList.add('hidden');
+
+            // Pan Leaflet coordinates
+            if (state.mapInstance && state.mapMarker) {
+                state.mapInstance.setView(coords, 15);
+                state.mapMarker.setLatLng(coords);
+                updateCoordsDisplay(coords[0], coords[1]);
+                showToast(`Panned map coordinates to: ${addressText}`, 'info');
+            }
+        }
+
+        function executeMockSearch() {
+            const address = document.getElementById('map-search-input').value;
+            if (address.trim() === '') return;
+            // Simulated generic coordinate fly-to
+            const randomLatOffset = (Math.random() - 0.5) * 0.05;
+            const randomLngOffset = (Math.random() - 0.5) * 0.05;
+            const currentCenter = state.mapInstance.getCenter();
+            
+            const targetCoords = [currentCenter.lat + randomLatOffset, currentCenter.lng + randomLngOffset];
+            state.mapInstance.setView(targetCoords, 14);
+            state.mapMarker.setLatLng(targetCoords);
+            updateCoordsDisplay(targetCoords[0], targetCoords[1]);
+            document.getElementById('search-suggestions').classList.add('hidden');
+            showToast("Centered map to closest match.", "info");
+        }
+
+        // Save Pinpoint Precision Data
+        function savePrecisionAddress() {
+            const notes = document.getElementById('address-landmark-notes').value.trim();
+            const pos = state.mapMarker.getLatLng();
+
+            state.user.address = {
+                lat: pos.lat,
+                lng: pos.lng,
+                notes: notes || "Precise coordinates dropped."
+            };
+
+            showToast("Saved precision doorstep address pinpoint successfully!", "success");
+            addNotification("Location Coordinates Verified", `Pinned location exactly at [${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}] with entrance note: "${notes || 'None'}"`);
+            
+            updateCartDisplay();
+            // Switch back to catalog view to complete cart review
+            switchTab('catalog');
+        }
+
+        // JIT Secure Verification Checks
+        function initiateCheckout() {
+            // Rule 1: Must have precise location selected
+            if (!state.user.address) {
+                showToast("Precision Map Pin location required to dispatch technical service/cargo! Select 'Map Pin Drop' tab.", "warning");
+                switchTab('map');
+                return;
+            }
+
+            // Rule 2: Must verify phone JIT (Just in time!)
+            if (!state.user.phoneVerified) {
+                openJitModal();
+                return;
+            }
+
+            // Rule 3: Validations complete. Proceed directly to Google Pay Deep-link payment process.
+            triggerGPayProcessing();
+        }
+
+        // JIT OTP Overlay Actions
+        function openJitModal() {
+            document.getElementById('jit-verification-modal').classList.remove('hidden');
+            document.getElementById('jit-step-phone').classList.remove('hidden');
+            document.getElementById('jit-step-otp').classList.add('hidden');
+        }
+
+        function closeJitModal() {
+            document.getElementById('jit-verification-modal').classList.add('hidden');
+        }
+
+        function sendOtpCode() {
+            const phoneVal = document.getElementById('jit-phone-input').value.trim();
+            if (phoneVal.length < 10) {
+                showToast("Please enter a valid 10-digit mobile number.", "error");
+                return;
+            }
+
+            state.user.phone = phoneVal;
+            // Shift modal screens to OTP inputs
+            document.getElementById('jit-step-phone').classList.add('hidden');
+            document.getElementById('jit-step-otp').classList.remove('hidden');
+            showToast("Simulated secure OTP code sent: 8820", "info");
+        }
+
+        function resetJitStep() {
+            document.getElementById('jit-step-phone').classList.remove('hidden');
+            document.getElementById('jit-step-otp').classList.add('hidden');
+        }
+
+        function verifyOtpCode() {
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            let code = "";
+            otpBoxes.forEach(box => code += box.value);
+
+            if (code === "8820" || code === "1234") {
+                state.user.phoneVerified = true;
+                
+                // Update header status indicators
+                document.getElementById('user-phone-status').innerText = `+91 ${state.user.phone}`;
+                document.getElementById('user-phone-status').className = "text-[10px] text-emerald-600 font-bold";
+
+                closeJitModal();
+                showToast("Phone linked securely. JIT Gate passed!", "success");
+                addNotification("Phone Number Verified", `Successfully linked mobile reference terminal +91 ${state.user.phone}`);
+
+                // Proceed with immediate GPay loop checkout
+                triggerGPayProcessing();
+            } else {
+                showToast("Invalid verification code! Try using mock bypass code: 8820", "error");
+            }
+        }
+
+        // GPay Business UPI deep-linking QR Simulator
+        function triggerGPayProcessing() {
+            // Calculate sums
+            const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const tax = Math.round(subtotal * 0.18);
+            const totalVal = subtotal + tax;
+
+            document.getElementById('payment-amount').innerText = `₹${totalVal.toLocaleString()}`;
+
+            // Generate merchant dynamic UPI QR utilizing compliant NPCI deep-linking specs
+            // upi://pay?pa=antinnamechants@okbizaxis&pn=Antinna&tr=TXN8201&am=totalVal&cu=INR
+            const cleanUpiUri = `upi://pay?pa=antinnamechants@okbizaxis&pn=Antinna&am=${totalVal}&cu=INR`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(cleanUpiUri)}`;
+            
+            document.getElementById('upi-qr-image').src = qrApiUrl;
+
+            // Show payment window overlay
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        // Complete Checkout & Create Order state tracked via Dynamic Timeline
+        function simulateOrderCompletion() {
+            const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const tax = Math.round(subtotal * 0.18);
+            const totalVal = subtotal + tax;
+
+            // Detect order nature: Products, Services, or Combined
+            let hasProducts = state.cart.some(c => c.category !== 'SERVICES');
+            let hasServices = state.cart.some(c => c.category === 'SERVICES');
+            let orderType = 'COMBINED';
+            if (hasProducts && !hasServices) orderType = 'PRODUCTS';
+            if (!hasProducts && hasServices) orderType = 'SERVICES';
+
+            const activeOrder = {
+                id: 'ANT-' + Math.floor(1000 + Math.random() * 9000),
+                items: [...state.cart],
+                total: totalVal,
+                type: orderType,
+                statusStep: 0, // 0: Placed, 1: Confirmed/Assigned, 2: Packed/In-Transit, 3: Completed
+                timestamp: new Date().toLocaleDateString()
+            };
+
+            state.orders.unshift(activeOrder);
+
+            // Empty cart now
+            state.cart = [];
+            updateCartDisplay();
+
+            // Hide payment screen
+            closePaymentModal();
+            
+            // Highlight orders list count badges
+            const ordCountBadge = document.getElementById('active-orders-count');
+            ordCountBadge.innerText = state.orders.length;
+            ordCountBadge.classList.remove('hidden');
+
+            // Switch to Active Orders Tab view
+            switchTab('orders');
+            renderActiveOrders();
+
+            showToast("Order Placed! Simulated GPay confirmation successful.", "success");
+            addNotification("Payment Success!", `GPay merchant ref confirmed transaction of ₹${totalVal.toLocaleString()}`);
+            addNotification("Order Created", `Your order ${activeOrder.id} is now placed. Dispatch pipeline initiated.`);
+        }
+
+        // Draw Interactive Orders List with Live Status State Machine
+        function renderActiveOrders() {
+            const container = document.getElementById('orders-list-container');
+            if (state.orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="package" class="w-12 h-12 mx-auto mb-2 text-slate-300"></i>
+                        <p class="text-xs">No active orders placed yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.orders.map((order, index) => {
+                // Stepper titles depending on order category dynamics
+                let steps = [];
+                if (order.type === 'PRODUCTS') {
+                    steps = ["Placed", "Packed", "Out for Delivery", "Delivered"];
+                } else if (order.type === 'SERVICES') {
+                    steps = ["Placed", "Assigned", "In Transit", "Completed"];
+                } else {
+                    // Combined Order Stepper
+                    steps = ["Placed", "Assigned / Packed", "Cargo In-Transit", "Fully Completed"];
+                }
+
+                return `
+                    <div class="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 text-left relative overflow-hidden">
+                        <!-- Decorative top edge badge -->
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-brand-500"></div>
+
+                        <!-- Header info -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 pb-3 mb-4">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-extrabold text-slate-900">${order.id}</span>
+                                    <span class="text-[9px] font-bold text-slate-500 tracking-wider bg-slate-200 px-2 py-0.5 rounded-full uppercase">${order.type}</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400">Placed on ${order.timestamp}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 block font-medium">TOTAL BILL</span>
+                                <span class="text-sm font-extrabold text-brand-600">₹${order.total.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        <!-- Cart items context overview -->
+                        <div class="space-y-2 mb-6">
+                            <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase block">Items List</span>
+                            ${order.items.map(item => `
+                                <div class="flex justify-between items-center text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-slate-800">${item.qty}x</span>
+                                        <span class="font-medium truncate max-w-[240px]">${item.name}</span>
+                                    </div>
+                                    ${item.scheduleDate ? `<span class="text-[9px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded">Appt: ${item.scheduleDate} at ${item.scheduleTime}</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Step Timeline Stepper Indicator -->
+                        <div class="mb-6">
+                            <span class="text-[9px] font-bold text-slate-400 tracking-wider uppercase block mb-3">Delivery & Technician Tracking</span>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative">
+                                ${steps.map((step, sIdx) => {
+                                    const isCompleted = order.statusStep >= sIdx;
+                                    const isActive = order.statusStep === sIdx;
+                                    return `
+                                        <div class="flex sm:flex-col items-center gap-2 sm:gap-1.5 flex-1 relative z-10">
+                                            <!-- Circle bullet -->
+                                            <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-all duration-300
+                                                ${isCompleted ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20' : 'bg-slate-200 text-slate-500'}
+                                                ${isActive ? 'ring-4 ring-brand-100 scale-105' : ''}">
+                                                ${isCompleted ? '✓' : sIdx + 1}
+                                            </div>
+                                            <!-- Step title description text -->
+                                            <div class="text-left sm:text-center">
+                                                <span class="text-[11px] font-bold leading-none block ${isCompleted ? 'text-slate-800' : 'text-slate-400'}">${step}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Simulation advance controls -->
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200/60 bg-white/50 -mx-5 -mb-5 p-4 rounded-b-2xl">
+                            <span class="text-[10px] text-slate-400 font-semibold italic flex items-center gap-1">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                Real-time Firebase pipeline sandbox
+                            </span>
+                            
+                            ${order.statusStep < 3 ? `
+                                <button onclick="simulateStatusProgress('${order.id}')" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold text-[10px] px-3.5 py-2 rounded-lg transition duration-150 flex items-center gap-1.5 active:scale-95 shadow-sm">
+                                    <i data-lucide="play" class="w-3 h-3"></i>
+                                    Advance Live Status
+                                </button>
+                            ` : `
+                                <span class="text-[10px] bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Order Finished
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Progress simulator status sequence (Mock backend state changes pushing notifications)
+        function simulateStatusProgress(orderId) {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            order.statusStep += 1;
+            renderActiveOrders();
+
+            // Status triggers mock notification alerts
+            if (order.statusStep === 1) {
+                if (order.type === 'PRODUCTS') {
+                    addNotification("Order Packed", `Order ${orderId} has been successfully packed at our central warehouse. Delivery vehicle assigning.`, orderId);
+                } else {
+                    addNotification("Technician Assigned", `Technician Sunil Sharma has accepted and confirmed service repair for order ${orderId}.`, orderId);
+                }
+            } else if (order.statusStep === 2) {
+                if (order.type === 'PRODUCTS') {
+                    addNotification("Out for Delivery", `Delivery associate is in-transit with your package. Estimate: 45 minutes.`, orderId);
+                } else {
+                    addNotification("Technician In-Transit", `Sunil Sharma is currently heading towards your pinpoint coordinates in Delhi.`, orderId);
+                }
+            } else if (order.statusStep === 3) {
+                addNotification("Order Completed Successfully", `Technical service task is complete. Warranty parameters for items active.`, orderId);
+                showToast(`Order ${orderId} has been fully completed!`, "success");
+            }
+        }
+
+        // Toggles for Custom Interactive overlays
+        function toggleCartDrawer() {
+            // Simply pan viewpoint focus on the right-hand layout sidebar on Mobile
+            const aside = document.getElementById('cart-aside');
+            aside.scrollIntoView({ behavior: 'smooth' });
+            
+            // Pulse border animation temporarily to focus user attention
+            aside.classList.add('ring-4', 'ring-brand-500/20');
+            setTimeout(() => aside.classList.remove('ring-4', 'ring-brand-500/20'), 1500);
+        }
+
+        function toggleNotificationDrawer() {
+            const drawer = document.getElementById('notif-drawer');
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                // Auto mark all notifications read
+                state.notifications = state.notifications.map(n => ({ ...n, read: true }));
+                updateNotificationDrawer();
+            } else {
+                drawer.classList.add('translate-x-full');
+            }
+        }
+    </script>
+</body>
+</html>
