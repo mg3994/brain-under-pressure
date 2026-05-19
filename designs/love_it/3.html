@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antinna | Premium On-Demand Hardware & Services</title>
+    
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Modern Premium Typography (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet Interactive Map Engine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Lucide Icons Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdfbf7',
+                            100: '#fbeed9',
+                            200: '#f5d39c',
+                            500: '#d97706', // Premium Gold
+                            600: '#b45309',
+                            900: '#451a03',
+                        },
+                        dark: {
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
+                        'floating': '0 20px 50px -12px rgba(15, 23, 42, 0.12)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom dynamic scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Custom Stepper Connector Styling */
+        .stepper-progress-line {
+            background: repeating-linear-gradient(90deg, #cbd5e1, #cbd5e1 4px, transparent 4px, transparent 8px);
+        }
+        /* Interactive Card Hover Transition Filters */
+        .category-card-transition {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* Search Suggestions Dropdown Blur */
+        .search-suggest-dropdown {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.98);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased h-screen flex overflow-hidden">
+
+    <!-- DESKTOP LEFT SIDEBAR NAVIGATION (Collapses on Mobile View) -->
+    <aside class="hidden lg:flex flex-col w-64 bg-dark-900 border-r border-slate-800 shrink-0 p-5 justify-between z-30 text-white">
+        <div class="space-y-8">
+            <!-- Brand Logo Frame -->
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-brand-500 p-2.5 rounded-xl text-white shadow-premium">
+                    <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-extrabold tracking-tight">Antinna</h2>
+                    <span class="text-[9px] uppercase tracking-wider text-brand-500 font-extrabold block">On-Demand Ecosystem</span>
+                </div>
+            </div>
+
+            <!-- Main Navigation Links -->
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('home')" id="sidebar-btn-home" class="sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 bg-slate-800 text-brand-500">
+                    <i data-lucide="home" class="w-4 h-4"></i> Home
+                </button>
+                <button onclick="switchTab('products')" id="sidebar-btn-products" class="sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i> Products Store
+                </button>
+                <button onclick="switchTab('services')" id="sidebar-btn-services" class="sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i> Service Booking
+                </button>
+                <button onclick="switchTab('orders')" id="sidebar-btn-orders" class="sidebar-tab w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <span class="flex items-center gap-3"><i data-lucide="clock" class="w-4 h-4"></i> My Orders</span>
+                    <span id="sidebar-order-badge" class="hidden text-[9px] bg-brand-500 text-white font-extrabold px-1.5 py-0.5 rounded-full animate-bounce">1</span>
+                </button>
+                <button onclick="switchTab('settings')" id="sidebar-btn-settings" class="sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Settings & Legal
+                </button>
+            </nav>
+        </div>
+
+        <!-- Footer Profile Panel inside Sidebar -->
+        <div class="space-y-3">
+            <button onclick="toggleNotificationDrawer()" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                <span class="flex items-center gap-2"><i data-lucide="bell" class="w-3.5 h-3.5"></i> Notification Logs</span>
+                <span id="sidebar-notif-indicator" class="w-2 h-2 bg-rose-500 rounded-full hidden"></span>
+            </button>
+            <div id="sidebar-auth-section" class="border-t border-slate-800 pt-4">
+                <!-- Dynamic Auth State Loaded on Window Initialisation -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- CENTRAL CONTAINER AND MOBILE FOOTER SCROLL SPACE -->
+    <div class="flex-1 flex flex-col min-w-0 relative h-screen">
+        
+        <!-- MOBILE TOP NAV HEADER -->
+        <header class="bg-white border-b border-slate-100 px-4 py-3 shrink-0 flex items-center justify-between lg:hidden z-20">
+            <div class="flex items-center gap-2">
+                <div class="bg-gradient-to-tr from-brand-600 to-brand-500 p-2 rounded-lg text-white">
+                    <i data-lucide="radio" class="w-4 h-4"></i>
+                </div>
+                <h1 class="text-sm font-black tracking-tight text-slate-900 uppercase">Antinna</h1>
+            </div>
+
+            <!-- Header Quick Controls -->
+            <div class="flex items-center gap-1.5 sm:gap-3">
+                <button onclick="toggleNotificationDrawer()" class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-50">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span id="mobile-notif-indicator" class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full hidden"></span>
+                </button>
+                <button onclick="toggleCartDrawer()" class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-50">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    <span id="mobile-cart-badge" class="absolute -top-0.5 -right-0.5 bg-brand-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+                <div id="mobile-header-auth" class="w-7 h-7 rounded-full bg-slate-100 overflow-hidden">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </header>
+
+        <!-- SEARCH CONTAINER BAR (Perfected spacing and responsiveness across device breaks) -->
+        <section class="bg-white px-4 md:px-6 py-3 shrink-0 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 z-40 relative">
+            <div class="relative w-full md:flex-1 max-w-xl">
+                <span class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </span>
+                <input type="text" id="store-global-search" oninput="handleSearch(this.value)" placeholder="Search modular switches, pipings, installations..." class="w-full bg-slate-50 border border-slate-200 pl-10 pr-12 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-500 focus:bg-white transition duration-200" autocomplete="off">
+                
+                <!-- Dynamic Keyboard Hotkey Tag [/] -->
+                <span class="hidden md:flex items-center gap-1 absolute right-3.5 top-1/2 -translate-y-1/2 bg-slate-200/60 border border-slate-300/30 text-[9px] font-mono font-bold text-slate-500 px-1.5 py-0.5 rounded-md pointer-events-none">
+                    /
+                </span>
+                
+                <!-- Instant Search Suggestions Dropdown Overlay -->
+                <div id="search-suggestions-dropdown" class="hidden absolute left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-floating z-[100] max-h-80 overflow-y-auto p-2 space-y-1 search-suggest-dropdown">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Single Unified Cart Trigger (Strictly non-repeated checkout actions) -->
+            <button onclick="toggleCartDrawer()" class="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-50 hover:bg-brand-100/70 border border-brand-100/50 rounded-xl text-brand-600 font-bold text-xs transition active:scale-95 duration-150 whitespace-nowrap">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                Unified Cart
+                <span id="desktop-cart-counter" class="bg-brand-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </section>
+
+        <!-- CORE SCREENS CONTENT FRAME (Scrollable Viewport) -->
+        <main class="flex-1 overflow-y-auto pb-24 lg:pb-8 p-4 md:p-6 space-y-6">
+
+            <!-- ================= VIEW 1: HOME PANEL ================= -->
+            <div id="view-home" class="space-y-6 animate-fade">
+                <!-- HERO MARKETING SLIDER / BANNER CONTAINER -->
+                <div class="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl overflow-hidden p-6 md:p-8 flex flex-col justify-between min-h-[220px] text-white shadow-premium">
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent pointer-events-none"></div>
+                    <div class="max-w-md relative z-10 space-y-2">
+                        <span class="text-[9px] tracking-widest text-brand-500 uppercase font-black">EXPERT INSTALLATIONS & HARDWARE DISPATCH</span>
+                        <h3 class="text-xl md:text-2xl font-black leading-tight tracking-tight">One-Tap Professional Diagnostics & Certified Home Fittings</h3>
+                        <p class="text-[11px] text-slate-300">Lock your precision map doorstep pin coordinates to calculate optimized technician arrival schedules instantly.</p>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 mt-4 relative z-10">
+                        <button onclick="switchTab('services')" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-2.5 px-5 rounded-xl transition duration-150 shadow-lg shadow-brand-500/20">
+                            Book Doorstep Service
+                        </button>
+                        <!-- Carousel Progress Indicators -->
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-6 h-1 bg-brand-500 rounded-full"></span>
+                            <span class="w-1.5 h-1 bg-slate-600 rounded-full"></span>
+                            <span class="w-1.5 h-1 bg-slate-600 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREMIUM CATEGORIES GRID -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-extrabold tracking-widest text-slate-400 uppercase">Interactive Categories</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Electrical Catalog -->
+                        <div onclick="setCategoryFilter('ELECTRICAL')" class="category-card-transition bg-amber-50/50 hover:bg-amber-100/50 border border-amber-100/40 rounded-2xl p-4 flex flex-col justify-between h-28 cursor-pointer group shadow-premium hover:scale-[1.02]">
+                            <span class="p-2 bg-amber-100/60 text-amber-600 w-10 h-10 rounded-xl flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5"></i></span>
+                            <div class="text-left">
+                                <h4 class="font-extrabold text-xs text-slate-800 leading-snug">Electrical Catalog</h4>
+                                <p class="text-[9px] text-slate-400">Switches, Breakers, Wiring</p>
+                            </div>
+                        </div>
+
+                        <!-- Plumbing Catalog -->
+                        <div onclick="setCategoryFilter('PLUMBING')" class="category-card-transition bg-blue-50/50 hover:bg-blue-100/50 border border-blue-100/40 rounded-2xl p-4 flex flex-col justify-between h-28 cursor-pointer group shadow-premium hover:scale-[1.02]">
+                            <span class="p-2 bg-blue-100/60 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center"><i data-lucide="droplet" class="w-5 h-5"></i></span>
+                            <div class="text-left">
+                                <h4 class="font-extrabold text-xs text-slate-800 leading-snug">Electrical Plumbing</h4>
+                                <p class="text-[9px] text-slate-400">Pipes, Valves & Fittings</p>
+                            </div>
+                        </div>
+
+                        <!-- Interaction Services -->
+                        <div onclick="setCategoryFilter('SERVICES')" class="category-card-transition bg-emerald-50/50 hover:bg-emerald-100/50 border border-emerald-100/40 rounded-2xl p-4 flex flex-col justify-between h-28 cursor-pointer group shadow-premium hover:scale-[1.02]">
+                            <span class="p-2 bg-emerald-100/60 text-emerald-600 w-10 h-10 rounded-xl flex items-center justify-center"><i data-lucide="hammer" class="w-5 h-5"></i></span>
+                            <div class="text-left">
+                                <h4 class="font-extrabold text-xs text-slate-800 leading-snug">Interaction Services</h4>
+                                <p class="text-[9px] text-slate-400">Mounting, Retrofits & Clean</p>
+                            </div>
+                        </div>
+
+                        <!-- Curated Categories -->
+                        <div onclick="setCategoryFilter('ALL')" class="category-card-transition bg-purple-50/50 hover:bg-purple-100/50 border border-purple-100/40 rounded-2xl p-4 flex flex-col justify-between h-28 cursor-pointer group shadow-premium hover:scale-[1.02]">
+                            <span class="p-2 bg-purple-100/60 text-purple-600 w-10 h-10 rounded-xl flex items-center justify-center"><i data-lucide="grid" class="w-5 h-5"></i></span>
+                            <div class="text-left">
+                                <h4 class="font-extrabold text-xs text-slate-800 leading-snug">Curated Categories</h4>
+                                <p class="text-[9px] text-slate-400">Browse Full Inventory</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECOMMENDED PRODUCTS SUBSECTION -->
+                <div class="flex items-center justify-between pt-2">
+                    <h3 class="text-xs font-extrabold tracking-widest text-slate-400 uppercase">Recommended Products & Services</h3>
+                    <button onclick="switchTab('products')" class="text-xs font-bold text-brand-500 hover:text-brand-600 flex items-center gap-1">View Store <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+                </div>
+                
+                <div id="home-recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- ================= VIEW 2: PRODUCTS CATALOG ================= -->
+            <div id="view-products" class="hidden space-y-6 animate-fade">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-100 shadow-premium">
+                    <div class="flex flex-wrap gap-1" id="catalog-category-toggles">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-slate-400 font-extrabold uppercase">Sort:</span>
+                        <select id="catalog-sorting-control" onchange="handleSort(this.value)" class="bg-slate-50 border border-slate-100 text-xs font-semibold px-2 py-1.5 rounded-lg text-slate-600 outline-none">
+                            <option value="POPULAR">Recommended</option>
+                            <option value="PRICE_ASC">Price: Low to High</option>
+                            <option value="PRICE_DESC">Price: High to Low</option>
+                            <option value="ALPHA_ASC">Alphabetical (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="catalog-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <!-- Appended dynamically -->
+                </div>
+
+                <!-- Infinite Scroll Skeleton Indicator -->
+                <div id="catalog-sentinel" class="py-6 flex justify-center">
+                    <div class="flex items-center gap-2 text-slate-400 text-xs font-semibold">
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-brand-500 border-t-transparent"></div>
+                        <span>Acquiring inventory shelves...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 3: SERVICE BOOKING & GEOLOCATION ================= -->
+            <div id="view-services" class="hidden space-y-4 animate-fade">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    
+                    <!-- Mapping Canvas Window -->
+                    <div class="xl:col-span-2 space-y-4">
+                        <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-premium space-y-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div class="text-left">
+                                    <h3 class="font-extrabold text-base text-slate-900 leading-tight">Step 1: Doorstep Precision Pin</h3>
+                                    <p class="text-[11px] text-slate-400">Search sector hubs or drag the pin marker directly to your exact doorstep gate.</p>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                    <select id="delhi-landmark-selector" onchange="flyToLocation(this.value)" class="bg-slate-50 border border-slate-200 text-xs font-semibold p-2 rounded-xl text-slate-600 cursor-pointer outline-none w-full sm:w-auto">
+                                        <option value="" disabled selected>Fly to Sector hubs</option>
+                                        <option value="cp">Connaught Place Central</option>
+                                        <option value="saket">Saket J Block</option>
+                                        <option value="karolbagh">Karol Bagh Bazar</option>
+                                        <option value="gurugram">Gurugram Phase 3 Cyber</option>
+                                        <option value="noida">Noida Sector 62</option>
+                                    </select>
+                                    <button onclick="getUserCoordinates()" class="w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold py-2 px-3.5 rounded-xl transition duration-150 flex items-center justify-center gap-1.5 shadow-lg shadow-brand-500/10">
+                                        <i data-lucide="locate" class="w-3.5 h-3.5"></i> Locate Me
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Map Canvas Container -->
+                            <div class="relative rounded-2xl overflow-hidden border border-slate-200 shadow-inner h-[380px] z-10">
+                                <div id="map-viewport" class="w-full h-full"></div>
+                                
+                                <!-- Hover Floating Indicator -->
+                                <div class="absolute bottom-4 left-4 right-4 sm:right-auto z-[1000] bg-white border border-slate-150 p-3.5 rounded-2xl shadow-floating max-w-sm flex items-start gap-3 animate-slide-up">
+                                    <div class="bg-brand-50 text-brand-500 p-2 rounded-xl shrink-0"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
+                                    <div class="text-left">
+                                        <span class="text-[9px] text-brand-500 uppercase tracking-widest font-black block">Geospatial Transit Link</span>
+                                        <p id="map-travel-estimation-banner" class="text-slate-500 text-[10px] leading-relaxed mt-0.5">Please drop a marker pin above. Schedulers and transit durations adjust dynamically according to location coordinates.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Realtime outputs coordinates lock -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="text-left">
+                                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Target Coordinates Lock</label>
+                                    <input type="text" id="locked-coordinates-text" readonly value="No Coordinates Locked" class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-mono font-bold text-slate-700 w-full focus:outline-none">
+                                </div>
+                                <div class="text-left">
+                                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Entrance notes / Door markings</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="target-address-metadata" placeholder="Flat No, Gate color, Landmark" class="border border-slate-200 bg-white p-2.5 rounded-xl text-xs w-full focus:ring-2 focus:ring-brand-200 focus:outline-none">
+                                        <button onclick="confirmPrecisionLocation()" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-brand-500/10 shrink-0">Confirm Pin</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interactive diagnostics list and instant bookings -->
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-premium space-y-4">
+                            <h3 class="font-extrabold text-xs text-slate-400 uppercase tracking-wider text-left">Step 2: Book Diagnostic/Installation</h3>
+                            <div id="service-booking-grid" class="space-y-3">
+                                <!-- Instantiated Service Items rows -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= VIEW 4: MY ORDERS TRACKER ================= -->
+            <div id="view-orders" class="hidden space-y-6 animate-fade">
+                <div id="empty-orders-view" class="bg-white rounded-3xl border border-slate-100 p-12 text-center max-w-md mx-auto shadow-premium space-y-4">
+                    <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="package-open" class="w-6 h-6"></i></div>
+                    <div class="space-y-1">
+                        <h4 class="font-extrabold text-sm text-slate-800">No Active Dispatches</h4>
+                        <p class="text-xs text-slate-400">Once checkout completes, your real-time linear delivery/service progress node updates here.</p>
+                    </div>
+                    <button onclick="switchTab('products')" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-2 px-5 rounded-xl transition shadow-lg shadow-brand-500/10">Browse Hardware</button>
+                </div>
+
+                <!-- Active tracking progress view card (Replicating the tracker templates of mockup 10638728449154356958.jpeg) -->
+                <div id="active-tracker-card" class="hidden bg-white p-6 rounded-3xl border border-slate-100 shadow-premium space-y-8">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-3">
+                        <div class="text-left">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-md tracking-wider uppercase" id="tracker-order-classification">Combined Dispatch</span>
+                                <span class="text-xs text-slate-400 font-bold" id="tracker-id-label">ANT-X72</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-900 mt-1" id="tracker-summary-label">Electrical Fittings Bundle</h3>
+                        </div>
+                        <div class="text-left sm:text-right shrink-0">
+                            <span class="text-[9px] text-slate-400 block font-bold uppercase">Dynamic Bill amount</span>
+                            <span class="text-lg font-extrabold text-slate-900" id="tracker-price-label">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Horizontal Linear Stepper Track -->
+                    <div class="relative py-4">
+                        <!-- Background Connective Trace line -->
+                        <div class="absolute left-6 top-10 bottom-10 w-1 md:left-4 md:right-4 md:top-8 md:bottom-auto md:w-auto md:h-1 bg-slate-100 z-0"></div>
+                        <div id="tracker-fill-line" class="absolute left-6 top-10 w-1 md:left-4 md:top-8 md:h-1 transition-all duration-500 ease-in-out bg-brand-500 z-0" style="height: 0%; width: 0%;"></div>
+
+                        <!-- Stepper Items Flex -->
+                        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-4" id="tracker-stepper-nodes">
+                            <!-- Populated dynamically per order type standard -->
+                        </div>
+                    </div>
+
+                    <!-- Stepper Simulator controls -->
+                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="text-left">
+                            <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4 text-brand-500"></i> Dispatch Timeline Sandbox</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Simulate dynamic order status transitions. Status increments broadcast directly to our FCM notification logs.</p>
+                        </div>
+                        <button onclick="advanceMockOrderState()" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition duration-150 flex items-center justify-center gap-1.5 shrink-0">
+                            Advance Step Node <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 5: SETTINGS & LEGAL COMPLIANCE HUB ================= -->
+            <div id="view-settings" class="hidden space-y-6 animate-fade text-left max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-premium space-y-6">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950">Settings & Compliance Panel</h2>
+                        <p class="text-xs text-slate-400">Manage user authorization states, verification bypasses, and examine platform rules.</p>
+                    </div>
+
+                    <!-- User Information segment -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Identity Profiles</span>
+                            <div id="settings-profile-card" class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Operational Settings</span>
+                            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-600 font-medium">Bypass Verification Code</span>
+                                    <span class="font-mono font-bold text-slate-800">1234 (Auto-assigned)</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-600 font-medium">Platform Region</span>
+                                    <span class="font-bold text-slate-800">Delhi NCR, India</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- High-fidelity inline Legal tab inside Settings -->
+                    <div class="border-t border-slate-100 pt-6 space-y-4">
+                        <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Legal Agreements & Regulatory Disclosures</span>
+                        
+                        <div class="flex bg-slate-100 p-1.5 rounded-xl gap-1 max-w-xs">
+                            <button id="legal-tab-privacy" onclick="switchLegalTab('privacy')" class="flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 bg-white text-slate-900 shadow-sm">
+                                Privacy Policy
+                            </button>
+                            <button id="legal-tab-terms" onclick="switchLegalTab('terms')" class="flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 text-slate-400 hover:text-slate-800">
+                                Terms & Conditions
+                            </button>
+                        </div>
+
+                        <div id="legal-content-box" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-600 leading-relaxed space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- MOBILE TABS BOTTOM BAR (Gracefully aligns with Desktop Layout toggle) -->
+        <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2.5 px-3 flex justify-around items-center z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+            <button onclick="switchTab('home')" id="mobile-btn-home" class="mobile-tab flex flex-col items-center gap-0.5 text-brand-500">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold">Home</span>
+            </button>
+            <button onclick="switchTab('products')" id="mobile-btn-products" class="mobile-tab flex flex-col items-center gap-0.5 text-slate-400">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold">Products</span>
+            </button>
+            <button onclick="switchTab('services')" id="mobile-btn-services" class="mobile-tab flex flex-col items-center gap-0.5 text-slate-400">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold">Service</span>
+            </button>
+            <button onclick="switchTab('orders')" id="mobile-btn-orders" class="mobile-tab flex flex-col items-center gap-0.5 text-slate-400 relative">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold">Orders</span>
+                <span id="mobile-order-badge" class="absolute -top-1 -right-1 bg-brand-500 text-white font-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">1</span>
+            </button>
+            <button onclick="switchTab('settings')" id="mobile-btn-settings" class="mobile-tab flex flex-col items-center gap-0.5 text-slate-400">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold">Settings</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- UNIFIED CART OVERLAY DRAWER (Slide-over overlay matching image previews) -->
+    <div id="cart-drawer-overlay" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs hidden z-[2000] transition-opacity duration-300" onclick="toggleCartDrawer()"></div>
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[380px] bg-white border-l border-slate-100 shadow-floating z-[2010] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+        
+        <!-- Header Drawer -->
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-slate-900">
+                <span class="bg-brand-50 text-brand-500 p-1.5 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4"></i></span>
+                <h3 class="font-extrabold text-sm">Unified Checkout Cart</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Scrollable items target -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="cart-drawer-items-container">
+            <!-- Populated dynamically via state update actions -->
+        </div>
+
+        <!-- Summary & Checkout drawer actions footer -->
+        <div id="cart-drawer-footer" class="hidden p-4 border-t border-slate-100 bg-slate-50 space-y-3">
+            <div class="space-y-1.5 text-left">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-semibold">Subtotal</span>
+                    <span id="cart-subtotal" class="text-slate-700 font-bold">₹0</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-semibold">Standard Taxes & Duties (18%)</span>
+                    <span id="cart-taxes" class="text-slate-700 font-bold">₹0</span>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-200">
+                    <span class="text-slate-800 font-extrabold">Total Invoice</span>
+                    <span id="cart-total" class="text-brand-600 font-extrabold text-sm">₹0</span>
+                </div>
+            </div>
+
+            <!-- Lock indicators -->
+            <div id="cart-delivery-disclaimer" class="bg-white border border-slate-150 p-2.5 rounded-xl text-[10px] flex items-start gap-2 text-left leading-normal">
+                <!-- Dynamically updated status -->
+            </div>
+
+            <button onclick="initiateCheckoutSequence()" class="w-full bg-slate-900 hover:bg-brand-500 text-white text-xs font-bold py-3.5 rounded-xl transition duration-150 flex items-center justify-center gap-1.5 active:scale-95 shadow-lg">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> Secure Verification & Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION SYSTEM INBOX BELL DRAWER -->
+    <div id="notification-drawer-overlay" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs hidden z-[2000]" onclick="toggleNotificationDrawer()"></div>
+    <div id="notification-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[360px] bg-white border-l border-slate-100 shadow-floating z-[2010] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="bg-rose-50 text-rose-500 p-1.5 rounded-lg"><i data-lucide="bell" class="w-4 h-4"></i></span>
+                <h3 class="font-extrabold text-sm text-slate-900">Real-time Notifications</h3>
+            </div>
+            <button onclick="toggleNotificationDrawer()" class="p-1 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="notification-drawer-items-container">
+            <!-- Dynamically populated notifications -->
+        </div>
+
+        <div class="p-3 border-t border-slate-100 bg-slate-50 flex gap-2">
+            <button onclick="clearAllNotifications()" class="flex-1 bg-white hover:bg-slate-100 border border-slate-200 text-[11px] font-bold py-2 rounded-lg text-slate-500 transition">Clear History Logs</button>
+        </div>
+    </div>
+
+    <!-- GOOGLE AUTH LOGIN MODAL -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md hidden items-center justify-center p-4 z-[5000]">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 md:p-8 text-center space-y-6 shadow-floating animate-scale-up">
+            <div class="bg-gradient-to-tr from-brand-600 to-brand-500 w-14 h-14 rounded-2xl shadow-lg text-white flex items-center justify-center mx-auto">
+                <i data-lucide="radio" class="w-7 h-7 animate-pulse"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-extrabold text-slate-900 text-lg tracking-tight">Access Antinna Platform</h3>
+                <p class="text-xs text-slate-500">Enable premium doorstep installations, certified dispatches & routing logs.</p>
+            </div>
+            <button onclick="simulateGoogleLogin()" class="w-full border border-slate-200 bg-white hover:bg-slate-50 py-3 rounded-xl font-bold text-slate-700 text-xs transition duration-150 flex items-center justify-center gap-2.5 shadow-sm active:scale-95">
+                <svg class="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.253-3.133C18.29 1.144 15.56 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.195-1.925H12.24z"/></svg>
+                Continue with Google
+            </button>
+            <p class="text-[9px] text-slate-400">By continuing, you link exact Delhi sector GPS verification systems.</p>
+        </div>
+    </div>
+
+    <!-- PHONE NUMBER LINKING & OTP PANEL MODAL -->
+    <div id="otp-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs hidden items-center justify-center p-4 z-[5000]">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-floating animate-scale-up">
+            <div class="bg-amber-50 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-lg"><i data-lucide="shield-alert" class="w-5 h-5"></i></div>
+            <div class="space-y-1">
+                <h3 class="font-extrabold text-slate-900 text-sm">Phone Verification Required</h3>
+                <p class="text-xs text-slate-500">Link an active phone number to lock doorstep delivery parameters.</p>
+            </div>
+            
+            <div class="space-y-3 text-left">
+                <!-- Phone Entry View -->
+                <div id="otp-phone-view">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Mobile Phone Number</label>
+                    <div class="flex">
+                        <span class="bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl px-3 py-2 text-xs text-slate-500 font-bold flex items-center">+91</span>
+                        <input type="tel" id="otp-phone-input" placeholder="9876543210" class="border border-slate-200 rounded-r-xl p-2.5 text-xs w-full focus:outline-none focus:ring-1 focus:ring-brand-200">
+                    </div>
+                </div>
+
+                <!-- OTP Verification Code Entry View -->
+                <div id="otp-code-view" class="hidden">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Security Code</label>
+                        <span class="text-[9px] bg-emerald-50 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded-md">CODE: 1234 DISPATCHED</span>
+                    </div>
+                    <input type="text" id="otp-code-input" maxlength="4" placeholder="••••" class="border border-slate-200 bg-slate-50 rounded-xl p-2.5 text-center text-lg tracking-widest font-bold w-full focus:outline-none focus:ring-1 focus:ring-brand-200">
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeOtpModal()" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs font-bold py-2.5 rounded-xl transition">Cancel</button>
+                <button onclick="handleOtpSubmit()" id="otp-submit-btn" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold py-2.5 rounded-xl transition">Send OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GOOGLE PAY BUSINESS UPI MODAL -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs hidden items-center justify-center p-4 z-[5000]">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-floating relative animate-scale-up">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex items-center justify-center gap-1.5 text-brand-500">
+                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider">GPay Business Merchant Invoice</span>
+            </div>
+
+            <!-- Animated Dynamic QR Box -->
+            <div class="bg-slate-50 p-4 rounded-2xl inline-block mx-auto border border-slate-100/60">
+                <img id="payment-qr-img" class="w-40 h-40 mx-auto rounded-lg object-contain" src="" alt="Google Pay UPI QR">
+                <div id="payment-txn-ref" class="text-[9px] text-slate-400 font-mono mt-2">Ref: ...</div>
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-xs text-slate-400">Scan this dynamic NPCI compliant QR code or tap simulated confirmations.</p>
+                <div class="text-xl font-extrabold text-slate-900" id="payment-price-tag">₹0.00</div>
+            </div>
+
+            <div class="bg-amber-50 text-amber-800 p-2.5 rounded-xl text-[10px] leading-relaxed flex items-center gap-2">
+                <div class="animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full shrink-0"></div>
+                <span>Listening for GPay authorization webhook...</span>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="confirmMockPayment(true)" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/10">Authorize Success</button>
+                <button onclick="confirmMockPayment(false)" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold py-2.5 px-4 rounded-xl transition">Fail</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT DETAIL VIEW INLINE MODAL -->
+    <div id="product-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-[5000] overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[95vh] overflow-y-auto relative shadow-floating animate-scale-up">
+            <button onclick="closeProductDetailModal()" class="absolute top-4 right-4 p-2 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-full text-slate-400 hover:text-slate-800 transition z-10"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="p-5 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="product-detail-content">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Toast Notification Shelf -->
+    <div id="toast-notif-shelf" class="fixed bottom-4 left-4 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm">
+        <!-- Appended programmatically -->
+    </div>
+
+    <!-- BACKEND SCRIPT ENGINES AND APP CONTROLS -->
+    <script>
+        const GEOLOCATION_HUB = { lat: 28.6304, lng: 77.2177 }; // Connaught Place Delhi centerpoint
+
+        const state = {
+            user: {
+                loggedIn: false,
+                name: "",
+                email: "",
+                phone: "",
+                phoneVerified: false,
+                address: null // { lat, lng, formattedAddress, notes, travelTimeMins, distanceKm }
+            },
+            cart: [],
+            activeTab: "home",
+            searchQuery: "",
+            categoryFilter: "ALL",
+            sortBy: "POPULAR",
+            notifications: [],
+            activeOrder: null, 
+            otpState: "PHONE", 
+            tempPhone: "",
+            catalogPage: 1,
+            itemsPerPage: 8,
+            hasMoreItems: true,
+            activeLegalTab: "privacy" 
+        };
+
+        // Static Master Dataset with diverse items matching specifications
+        const masterCatalogItems = [
+            { id: "e1", name: "Premium Gold Modular Switchboard", category: "ELECTRICAL", price: 1450, rating: 4.8, reviewsCount: 340, sku: "ANT-EL-SW01", description: "Heavy-duty 8-switch modern modular board fitted with micro surge protectors, indicator lights, and high premium metallic finishes.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Material": "Metallic Polycarbonate", "Switches": "8 Slots", "Max Current": "16 Amp", "Warranty": "2 Years" } },
+            { id: "e2", name: "High Core Shielded Copper Wire (100m)", category: "ELECTRICAL", price: 2990, rating: 4.7, reviewsCount: 195, sku: "ANT-EL-WR02", description: "Premium fire-retardant multi-strand copper electrical wire bundle with protective shielding.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Length": "100 Meters", "Core": "Multi-strand FR", "Gauge": "1.5 Sq. mm" } },
+            { id: "e3", name: "Heavy DP MCB Circuit Breaker", category: "ELECTRICAL", price: 420, rating: 4.9, reviewsCount: 88, sku: "ANT-EL-MC03", description: "Double pole protective overload toggle switches designed for immediate arc extinction.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Type": "Double Pole (DP)", "Rating": "16 Amp", "Tripping": "Class C" } },
+            { id: "e4", name: "Smart Wi-Fi RGB Accent LED Strip", category: "ELECTRICAL", price: 1890, rating: 4.6, reviewsCount: 512, sku: "ANT-EL-LS04", description: "Alexa integrated smart ambient light strip, fully customizable via local home Wi-Fi controllers.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Length": "5 Meters", "Voice Controls": "Alexa & Google App", "LED Type": "5050 RGB" } },
+            { id: "e5", name: "Silent Exhaust Vent Ventilation Fan", category: "ELECTRICAL", price: 1250, rating: 4.4, reviewsCount: 140, sku: "ANT-EL-EF05", description: "Rust-proof, low noise kitchen or washroom extraction unit with automated layout shutter flaps.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Blade Sweep": "200 mm", "RPM": "1350", "Material": "ABS" } },
+            { id: "e6", name: "Smart Wi-Fi Plug with Live Watt Monitor", category: "ELECTRICAL", price: 890, rating: 4.5, reviewsCount: 220, sku: "ANT-EL-SP06", description: "Control heavy utility applications from any smartphone. Tracks real-time household power consumption.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Max Load": "15 Amp", "App Interface": "Smart Life", "Sensor": "Live Current Watts" } },
+            { id: "e7", name: "Aerodynamic High-Sweep Ceiling Fan", category: "ELECTRICAL", price: 3400, rating: 4.7, reviewsCount: 610, sku: "ANT-EL-CF07", description: "Metallic copper finished wide sweep ceiling fan. Engineered for low turbulence and silent air delivery.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Sweep": "1200 mm", "Blades": "3 Aerodynamic", "Power": "75 Watts" } },
+            { id: "e8", name: "IP65 Waterproof Heavy Junction Box", category: "ELECTRICAL", price: 310, rating: 4.3, reviewsCount: 42, sku: "ANT-EL-JB08", description: "Fully sealed dustproof junction hub, engineered to survive external seasonal rainfall hazards.", image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=400&q=80", specs: { "Rating": "IP65 Waterproof", "Glands": "4 Ports", "Material": "Thermal PVC" } },
+            
+            { id: "p1", name: "Polished Chrome Basin Mixer Tap Faucet", category: "PLUMBING", price: 3200, rating: 4.8, reviewsCount: 129, sku: "ANT-PL-MX01", description: "Solid brass body basin faucet with high-end polished mirror chrome and hot-and-cold ceramic cartridges.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Finish": "Polished Mirror", "Cartridge": "Ceramic Disc", "Installation": "Single Hole Deck" } },
+            { id: "p2", name: "Flexible Waste S-Trap PVC Drainpipe", category: "PLUMBING", price: 180, rating: 4.2, reviewsCount: 75, sku: "ANT-PL-PP02", description: "Extendable waste channel pipe fitted with premium odor barriers and multi-joint flex couplings.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Material": "Virgin PVC", "Type": "Anti-Odor Flexible", "Diameter": "32 mm" } },
+            { id: "p3", name: "Soundproof SUS304 Single Kitchen Sink", category: "PLUMBING", price: 4890, rating: 4.9, reviewsCount: 310, sku: "ANT-PL-KS03", description: "Thick satin-finished sink with acoustic dampening padding to completely deaden dishwashing noise.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Material": "Grade 304 Steel", "Gauge": "1.2 mm", "Depth": "10 Inches" } },
+            { id: "p4", name: "Heavy Teflon Sealant Thread Tape (5-Pack)", category: "PLUMBING", price: 150, rating: 4.6, reviewsCount: 450, sku: "ANT-PL-TT04", description: "High performance thread tape ensures completely leak-free fittings for all standard brass/steel valves.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Length": "12m per roll", "Width": "12 mm", "Resilience": "-190 to +300C" } },
+            { id: "p5", name: "Rainfall Luxury Overhead Shower Head", category: "PLUMBING", price: 1650, rating: 4.7, reviewsCount: 238, sku: "ANT-PL-SH05", description: "Extra-large rainfall overhead model designed with anti-lime silicon nozzles for smooth shower streams.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Size": "8x8 Inches", "Nozzles": "Easy-Clean Silicon", "Finish": "Polished Chrome" } },
+            { id: "p6", name: "Three-Stage Reservoir Active Carbon Filter", category: "PLUMBING", price: 8500, rating: 4.8, reviewsCount: 92, sku: "ANT-PL-WF06", description: "Strips chlorine, suspended clay residues, and heavy municipal pipe scaling before it hits your faucets.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Flow Rate": "15 Liters/min", "Ports": "1 Inch NPT", "Filter Core": "PP + Carbon Block" } },
+            { id: "p7", name: "Quarter-Turn Stainless Steel Angle Valve", category: "PLUMBING", price: 290, rating: 4.4, reviewsCount: 160, sku: "ANT-PL-QV07", description: "Compact isolation valve to cut supply to washroom geysers or toilet cistern tanks securely during repairs.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Inlet": "1/2 Inch Thread", "Valve Mechanism": "Quarter Turn Ceramic", "Material": "Stainless Steel" } },
+            { id: "p8", name: "Quick-Cure High-Pressure Pipeline Glue", category: "PLUMBING", price: 220, rating: 4.3, reviewsCount: 84, sku: "ANT-PL-LP08", description: "Waterproof fast-acting industrial thread sealant paste for locking high-pressure cold water pipe leaks.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=400&q=80", specs: { "Weight": "100g Tube", "Cure Time": "15 Minutes", "Strength": "Up to 12 Bar" } },
+            
+            { id: "s1", name: "Premium High-Wall Split AC Mounting", category: "SERVICES", price: 1500, rating: 4.9, reviewsCount: 840, sku: "ANT-SR-AC01", duration: "2 Hours", description: "Precision masonry core drill, bracket setups, custom copper layout lines insulation, and dynamic coolant check.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Staff Count": "2 Techs", "Diagnostic Check": "Coolant Pressure Inclusive", "Warranty": "30 Days Service Lock" } },
+            { id: "s2", name: "Safety Hook Ceiling Fan Assembly & Mount", category: "SERVICES", price: 250, rating: 4.8, reviewsCount: 1120, sku: "ANT-SR-FN02", duration: "45 Mins", description: "Unboxing, downrod lock, hook dynamic weight test, regulator switch integrations, and safety checks.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Staff Count": "1 Specialist", "Ground Check": "Regulator Integrations", "Warranty": "15 Days" } },
+            { id: "s3", name: "Instant Geyser Water Heater Diagnosis", category: "SERVICES", price: 490, rating: 4.7, reviewsCount: 560, sku: "ANT-SR-GY03", duration: "1 Hour", description: "Element testing, thermostat diagnostic assessment, checking scaling deposits, and repairing faulty safety valves.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Parts Cost": "Excluded", "Anode check": "Included", "Warranty": "30 Days" } },
+            { id: "s4", name: "Countertop Faucet Installation & Seal", category: "SERVICES", price: 350, rating: 4.8, reviewsCount: 420, sku: "ANT-SR-BS04", duration: "45 Mins", description: "Demounting old mixer faucets, thread clean, positioning basin fixtures, and sealing with premium mold-resistant silicon.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Silicon Seal": "Soudal Anti-Mold", "Pressure test": "Tested at 4 Bar", "Warranty": "15 Days leak-proof" } },
+            { id: "s5", name: "Thermal Imaging Hidden Seepage Scan", category: "SERVICES", price: 990, rating: 4.6, reviewsCount: 290, sku: "ANT-SR-LD05", duration: "1.5 Hours", description: "Locates micro wall dampness issues or structural floor leaks using high-definition thermal imaging scanners without structural damage.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Equipment": "Flir Thermographic Scanner", "Deliverable": "PDF Dampness Map", "Staff Count": "1 Engineer" } },
+            { id: "s6", name: "Switchboard Re-wiring & Grounding Audit", category: "SERVICES", price: 650, rating: 4.7, reviewsCount: 410, sku: "ANT-SR-SW06", duration: "1 Hour", description: "Replacing cracked sockets, structural wire routing layout tidy, diagnostic checks of ground terminals, and high surge test.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Max Boxes": "2 units", "Gear standard": "1000V Insulated VDE Tools", "Warranty": "30 Days" } },
+            { id: "s7", name: "Modular Exhaust Hood De-greasing Scan", category: "SERVICES", price: 1200, rating: 4.5, reviewsCount: 190, sku: "ANT-SR-CH07", duration: "2 Hours", description: "Internal chemical de-greasing bath for stainless mesh panels. Restoration of intake ventilation motor blowers.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Degreaser": "Eco-friendly Biodegradable", "Clean-up": "Surrounding area cover inclusive", "Warranty": "15 Days" } },
+            { id: "s8", name: "Biometric Main Door Smart Lock Fitting", category: "SERVICES", price: 1800, rating: 4.9, reviewsCount: 150, sku: "ANT-SR-SL08", duration: "2.5 Hours", description: "High-precision routing of wood or steel panels. Lock frame fit, sync biometric codes, and configure master phone codes.", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80", specs: { "Door Material": "Wood/MDF/Metal (up to 50mm)", "Biometric Sync": "Configured for up to 50 profiles", "Warranty": "90 Days Setup Guarantee" } }
+        ];
+
+        let mapObj = null;
+        let mapDropMarker = null;
+
+        window.onload = function() {
+            initAuthView();
+            initCategoryFilters();
+            renderHomeRecommendations();
+            renderCatalogGrid(true);
+            setupScrollSentinel();
+            setupSearchHotkey(); 
+            setupSuggestionCloseHandler(); 
+            switchLegalTab('privacy'); // Initialise legal content in settings
+            
+            // Initial Notification Logs
+            broadcastFirebaseEvent("Antinna Operations", "Ecosystem initiated successfully. Authenticate with Google to verify spatial coordinates.", "system");
+            
+            lucide.createIcons();
+        };
+
+        function setupSearchHotkey() {
+            window.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    const sInput = document.getElementById('store-global-search');
+                    if (sInput) {
+                        sInput.focus();
+                        sInput.select();
+                    }
+                }
+            });
+        }
+
+        function setupSuggestionCloseHandler() {
+            document.addEventListener('click', function(e) {
+                const searchBox = document.getElementById('store-global-search');
+                const dropdown = document.getElementById('search-suggestions-dropdown');
+                if (searchBox && dropdown && !searchBox.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        function switchTab(viewId) {
+            state.activeTab = viewId;
+
+            // Display target panel
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-products').classList.add('hidden');
+            document.getElementById('view-services').classList.add('hidden');
+            document.getElementById('view-orders').classList.add('hidden');
+            document.getElementById('view-settings').classList.add('hidden');
+
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+            // Toggle Sidebar state styling on Desktop
+            document.querySelectorAll('.sidebar-tab').forEach(btn => {
+                btn.className = "sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 text-slate-400 hover:bg-slate-800 hover:text-white";
+            });
+            const activeSidebarBtn = document.getElementById(`sidebar-btn-${viewId}`);
+            if (activeSidebarBtn) {
+                activeSidebarBtn.className = "sidebar-tab w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition duration-150 bg-slate-800 text-brand-500";
+            }
+
+            // Toggle Bottom Bar highlights on Mobile
+            document.querySelectorAll('.mobile-tab').forEach(btn => {
+                btn.className = "mobile-tab flex flex-col items-center gap-0.5 text-slate-400";
+            });
+            const activeMobileBtn = document.getElementById(`mobile-btn-${viewId}`);
+            if (activeMobileBtn) {
+                activeMobileBtn.className = "mobile-tab flex flex-col items-center gap-0.5 text-brand-500";
+            }
+
+            if (viewId === 'services') {
+                setTimeout(initializeLeafletMap, 100);
+            }
+
+            if (viewId === 'orders') {
+                renderTimelineUI();
+            }
+
+            if (viewId === 'settings') {
+                renderSettingsProfile();
+            }
+
+            lucide.createIcons();
+        }
+
+        function triggerOnboardingGate() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function simulateGoogleLogin() {
+            state.user.loggedIn = true;
+            state.user.name = "Aniket Sharma";
+            state.user.email = "aniket.sharma.delhi@gmail.com";
+
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('flex');
+
+            initAuthView();
+            renderSettingsProfile();
+            broadcastFirebaseEvent("Firebase Cloud Authentication", "Authenticated as aniket.sharma.delhi@gmail.com via Social Sign-In", "success");
+            triggerToast("Logged in with Google Auth", "success");
+
+            updateCartVisuals();
+        }
+
+        function triggerLogout() {
+            state.user.loggedIn = false;
+            state.user.name = "";
+            state.user.email = "";
+            state.user.phone = "";
+            state.user.phoneVerified = false;
+            state.user.address = null;
+
+            initAuthView();
+            renderSettingsProfile();
+            updateCartVisuals();
+
+            // Reset navigation indicators
+            const coordBanner = document.getElementById('map-travel-estimation-banner');
+            if (coordBanner) {
+                coordBanner.innerText = "Please drop a marker pin above. Schedulers and transit durations adjust dynamically according to location coordinates.";
+            }
+            document.getElementById('locked-coordinates-text').value = "No Coordinates Locked";
+
+            broadcastFirebaseEvent("Security Terminal", "User cleared session cookies and logged out.", "warning");
+            triggerToast("Securely logged out", "info");
+        }
+
+        function initAuthView() {
+            const sidebarAuth = document.getElementById('sidebar-auth-section');
+            const mobileAuth = document.getElementById('mobile-header-auth');
+
+            if (state.user.loggedIn) {
+                sidebarAuth.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-800 border border-slate-700">
+                        <div class="text-left overflow-hidden">
+                            <h4 class="text-xs font-bold text-slate-100 truncate">${state.user.name}</h4>
+                            <p class="text-[9px] text-slate-400 truncate font-semibold">${state.user.email}</p>
+                        </div>
+                        <button onclick="triggerLogout()" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg transition" title="Log Out">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                mobileAuth.innerHTML = `
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Profile" class="w-full h-full object-cover">
+                `;
+            } else {
+                sidebarAuth.innerHTML = `
+                    <button onclick="triggerOnboardingGate()" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition duration-150 flex items-center justify-center gap-1.5 shadow-premium">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> Single Sign-on
+                    </button>
+                `;
+                mobileAuth.innerHTML = `
+                    <button onclick="triggerOnboardingGate()" class="w-full h-full flex items-center justify-center bg-slate-100 text-slate-500"><i data-lucide="user" class="w-4 h-4"></i></button>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function renderSettingsProfile() {
+            const card = document.getElementById('settings-profile-card');
+            if (!card) return;
+
+            if (state.user.loggedIn) {
+                card.innerHTML = `
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-semibold">User Name:</span>
+                            <span class="text-slate-800 font-bold">${state.user.name}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-semibold">Email:</span>
+                            <span class="text-slate-800 font-bold">${state.user.email}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-semibold">Phone Contact:</span>
+                            <span class="text-slate-800 font-bold">${state.user.phone || 'Not Linked'}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 font-semibold">Verification State:</span>
+                            <span class="px-2 py-0.5 text-[9px] font-black rounded ${state.user.phoneVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${state.user.phoneVerified ? 'Verified Phone' : 'Unverified Phone'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="text-center py-4 space-y-2">
+                        <p class="text-xs text-slate-400 font-medium">Please sign in to view account configuration details.</p>
+                        <button onclick="triggerOnboardingGate()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] py-1.5 px-4 rounded-lg transition shadow">
+                            Sign In Now
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function switchLegalTab(tab) {
+            state.activeLegalTab = tab;
+
+            const privacyBtn = document.getElementById('legal-tab-privacy');
+            const termsBtn = document.getElementById('legal-tab-terms');
+            const container = document.getElementById('legal-content-box');
+
+            if (!privacyBtn || !termsBtn || !container) return;
+
+            if (tab === 'privacy') {
+                privacyBtn.className = "flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 bg-white text-slate-900 shadow-sm";
+                termsBtn.className = "flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 text-slate-400 hover:text-slate-800";
+                
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">1. Geographic Information Scopes</h4>
+                            <p class="text-slate-500">Antinna requires high-precision geoposition pins to calculate dispatch schedules, vehicle transit durations, and local technician allocations. The coordinates you confirm via our OpenStreetMap layer are linked to your profile only for active order dispatches.</p>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">2. Contact Verification Parameters</h4>
+                            <p class="text-slate-500">Your phone number is retrieved under Just-In-Time parameters to secure hardware deliveries. We do not sell or lease this parameter to third-party advertising companies. SMS alerts are executed securely through our isolated SMS transactional routing gate.</p>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">3. Account Identity Scopes</h4>
+                            <p class="text-slate-500">Google OAuth remains the only authorized sign-in provider, guaranteeing your credentials remain isolated within Google security frameworks. We only retrieve verified public names, emails, and profile avatars.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                termsBtn.className = "flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 bg-white text-slate-900 shadow-sm";
+                privacyBtn.className = "flex-1 text-center text-[10px] font-black py-1.5 rounded-lg transition duration-200 text-slate-400 hover:text-slate-800";
+                
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">1. System Access Bounds</h4>
+                            <p class="text-slate-500">By placing hardware or diagnostic visits through Antinna, you authorize our technicians to access structural routing spots, electrical junctions, and water supply points confirmed under dropped pins.</p>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">2. Dynamic Pricing & Taxes</h4>
+                            <p class="text-slate-500">Prices listed inside our store are estimates and incur an 18% standard SGST/CGST tax on final processing. Material costs are separated from modular diagnostic charges as specified in each order line.</p>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-slate-900">3. GPay Webhook Finalization</h4>
+                            <p class="text-slate-500">Orders are queued as "Confirmed" only after our merchant UPI gateway registers positive status validations. Attempted fraud triggers instant session invalidation.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function initCategoryFilters() {
+            const container = document.getElementById('catalog-category-toggles');
+            const categories = ["ALL", "ELECTRICAL", "PLUMBING", "SERVICES"];
+            
+            container.innerHTML = categories.map(cat => `
+                <button onclick="setCategoryFilter('${cat}')" class="cat-pill px-3 py-1.5 rounded-xl text-[10px] font-extrabold tracking-wider uppercase transition duration-150 ${state.categoryFilter === cat ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}" id="pill-${cat}">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategoryFilter(category) {
+            state.categoryFilter = category;
+            state.catalogPage = 1;
+            state.hasMoreItems = true;
+
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                const isCurrent = btn.id === `pill-${category}`;
+                btn.className = `cat-pill px-3 py-1.5 rounded-xl text-[10px] font-extrabold tracking-wider uppercase transition duration-150 ${isCurrent ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`;
+            });
+
+            if (state.activeTab !== 'products') {
+                switchTab('products');
+            }
+
+            renderCatalogGrid(true);
+        }
+
+        function handleSearch(val) {
+            state.searchQuery = val.toLowerCase().trim();
+            state.catalogPage = 1;
+            state.hasMoreItems = true;
+            
+            const dropdown = document.getElementById('search-suggestions-dropdown');
+
+            if (!state.searchQuery) {
+                dropdown.classList.add('hidden');
+                if (state.activeTab === 'products') {
+                    renderCatalogGrid(true);
+                }
+                return;
+            }
+
+            const filteredItems = getFilteredCatalog().slice(0, 5);
+            
+            if (filteredItems.length > 0) {
+                dropdown.classList.remove('hidden');
+                dropdown.innerHTML = `
+                    <div class="px-2.5 py-1.5 text-[10px] text-slate-400 font-extrabold tracking-widest uppercase">Instant Suggestions</div>
+                    ${filteredItems.map(item => `
+                        <div onclick="selectSuggestion('${item.id}')" class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition cursor-pointer gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img src="${item.image}" alt="" class="w-8 h-8 rounded-lg object-cover shrink-0">
+                                <div class="text-left min-w-0">
+                                    <h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4>
+                                    <span class="text-[9px] bg-slate-100 text-slate-500 font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">${item.category}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-xs font-extrabold text-slate-900">₹${item.price.toLocaleString()}</span>
+                                <button onclick="addToCart('${item.id}', event); event.stopPropagation();" class="p-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded-lg transition">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                lucide.createIcons();
+            } else {
+                dropdown.innerHTML = `
+                    <div class="p-4 text-center text-slate-400 text-xs font-semibold">
+                        No immediate suggestion matches found.
+                    </div>
+                `;
+                dropdown.classList.remove('hidden');
+            }
+            
+            if (state.activeTab !== 'products') {
+                switchTab('products');
+            }
+            renderCatalogGrid(true);
+        }
+
+        function selectSuggestion(itemId) {
+            document.getElementById('search-suggestions-dropdown').classList.add('hidden');
+            openProductDetailModal(itemId);
+        }
+
+        function handleSort(criteria) {
+            state.sortBy = criteria;
+            state.catalogPage = 1;
+            state.hasMoreItems = true;
+            renderCatalogGrid(true);
+        }
+
+        function getFilteredCatalog() {
+            let items = [...masterCatalogItems];
+
+            if (state.categoryFilter !== "ALL") {
+                items = items.filter(i => i.category === state.categoryFilter);
+            }
+
+            if (state.searchQuery) {
+                items = items.filter(i => 
+                    i.name.toLowerCase().includes(state.searchQuery) ||
+                    i.description.toLowerCase().includes(state.searchQuery) ||
+                    i.sku.toLowerCase().includes(state.searchQuery)
+                );
+            }
+
+            if (state.sortBy === "PRICE_ASC") {
+                items.sort((a, b) => a.price - b.price);
+            } else if (state.sortBy === "PRICE_DESC") {
+                items.sort((a, b) => b.price - a.price);
+            } else if (state.sortBy === "ALPHA_ASC") {
+                items.sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                items.sort((a, b) => b.rating - a.rating);
+            }
+
+            return items;
+        }
+
+        function renderHomeRecommendations() {
+            const grid = document.getElementById('home-recommendations-grid');
+            const items = masterCatalogItems.slice(0, 4);
+
+            grid.innerHTML = items.map(item => createCardMarkup(item)).join('');
+            lucide.createIcons();
+        }
+
+        function renderCatalogGrid(isFreshQuery = false) {
+            const grid = document.getElementById('catalog-products-grid');
+            const processedItems = getFilteredCatalog();
+
+            if (isFreshQuery) {
+                grid.innerHTML = "";
+            }
+
+            const offsetStart = (state.catalogPage - 1) * state.itemsPerPage;
+            const offsetEnd = offsetStart + state.itemsPerPage;
+            const batch = processedItems.slice(offsetStart, offsetEnd);
+
+            if (processedItems.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i data-lucide="info" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-xs font-semibold">No products found matching filters.</p>
+                    </div>
+                `;
+                document.getElementById('catalog-sentinel').classList.add('hidden');
+                return;
+            }
+
+            if (offsetEnd >= processedItems.length) {
+                state.hasMoreItems = false;
+                document.getElementById('catalog-sentinel').classList.add('hidden');
+            } else {
+                document.getElementById('catalog-sentinel').classList.remove('hidden');
+            }
+
+            grid.insertAdjacentHTML('beforeend', batch.map(item => createCardMarkup(item)).join(''));
+            lucide.createIcons();
+        }
+
+        function createCardMarkup(item) {
+            return `
+                <div onclick="openProductDetailModal('${item.id}', event)" class="bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-premium transition-all duration-300 flex flex-col justify-between cursor-pointer group hover:-translate-y-1">
+                    <div class="relative bg-slate-50 aspect-video overflow-hidden">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-2 left-2 bg-slate-900/85 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider">${item.category}</span>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col justify-between gap-3 text-left">
+                        <div class="text-left">
+                            <span class="text-[8px] text-slate-400 font-extrabold tracking-wider block mb-1 uppercase">${item.sku}</span>
+                            <h4 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-tight group-hover:text-brand-500 transition">${item.name}</h4>
+                            <div class="flex items-center gap-1 mt-1">
+                                <i data-lucide="star" class="w-3 h-3 text-amber-500 fill-amber-500"></i>
+                                <span class="text-[10px] font-bold text-slate-700">${item.rating}</span>
+                                <span class="text-[9px] text-slate-400">(${item.reviewsCount} reviews)</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between border-t border-slate-50 pt-3">
+                            <div class="text-left">
+                                <span class="text-[8px] text-slate-400 font-bold block leading-none">EST PRICE</span>
+                                <span class="text-xs font-extrabold text-slate-900">₹${item.price.toLocaleString()}</span>
+                            </div>
+                            <button onclick="addToCart('${item.id}', event)" class="bg-brand-500 hover:bg-brand-600 text-white rounded-lg p-2.5 transition active:scale-95 duration-150 shadow-premium" title="Add to Cart">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupScrollSentinel() {
+            const sentinel = document.getElementById('catalog-sentinel');
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && state.hasMoreItems && state.activeTab === 'products') {
+                    state.catalogPage += 1;
+                    renderCatalogGrid(false);
+                }
+            }, { rootMargin: "150px" });
+            observer.observe(sentinel);
+        }
+
+        function addToCart(itemId, event) {
+            if (event) event.stopPropagation();
+
+            const item = masterCatalogItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existing = state.cart.find(c => c.id === itemId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                state.cart.push({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    category: item.category,
+                    duration: item.duration || null,
+                    sku: item.sku,
+                    qty: 1,
+                    scheduleDate: item.category === 'SERVICES' ? new Date(Date.now() + 86400000).toISOString().split('T')[0] : null,
+                    scheduleTime: item.category === 'SERVICES' ? '10:00' : null
+                });
+            }
+
+            updateCartVisuals();
+            triggerToast(`Added to cart: ${item.name}`, "success");
+        }
+
+        function updateCartQty(id, change) {
+            const line = state.cart.find(c => c.id === id);
+            if (!line) return;
+
+            line.qty += change;
+            if (line.qty <= 0) {
+                state.cart = state.cart.filter(c => c.id !== id);
+            }
+            updateCartVisuals();
+        }
+
+        function updateServiceSchedule(id, date, time) {
+            const line = state.cart.find(c => c.id === id);
+            if (!line) return;
+            if (date) line.scheduleDate = date;
+            if (time) line.scheduleTime = time;
+        }
+
+        function updateCartVisuals() {
+            const listContainer = document.getElementById('cart-drawer-items-container');
+            const footer = document.getElementById('cart-drawer-footer');
+            const countDesktop = document.getElementById('desktop-cart-counter');
+            const countMobile = document.getElementById('mobile-cart-badge');
+
+            const totalQty = state.cart.reduce((acc, c) => acc + c.qty, 0);
+            
+            countDesktop.innerText = totalQty;
+            countMobile.innerText = totalQty;
+            if (totalQty > 0) {
+                countMobile.classList.remove('hidden');
+            } else {
+                countMobile.classList.add('hidden');
+            }
+
+            if (state.cart.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="py-16 text-center text-slate-400 space-y-2">
+                        <i data-lucide="shopping-cart" class="w-8 h-8 mx-auto opacity-50"></i>
+                        <p class="text-xs font-semibold text-slate-800">Your unified cart is empty.</p>
+                        <p class="text-[10px] text-slate-400 max-w-[200px] mx-auto">Add installation diagnostics or modular hardware devices to configure your checkout packages.</p>
+                    </div>
+                `;
+                footer.classList.add('hidden');
+                return;
+            }
+
+            footer.classList.remove('hidden');
+
+            const locationLocked = !!state.user.address;
+            let travelLabelText = "";
+            if (locationLocked) {
+                travelLabelText = `Technician ETA: ~${state.user.address.travelTimeMins} mins from CP hub (${state.user.address.distanceKm} km)`;
+            }
+
+            listContainer.innerHTML = state.cart.map(c => `
+                <div class="bg-slate-50 border border-slate-150 p-3 rounded-2xl flex flex-col gap-2 relative">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="text-left">
+                            <h4 class="text-xs font-extrabold text-slate-800 line-clamp-2">${c.name}</h4>
+                            <span class="text-[8px] text-slate-400 font-extrabold uppercase tracking-wider">${c.sku}</span>
+                        </div>
+                        <span class="text-xs font-extrabold text-slate-950 shrink-0">₹${(c.price * c.qty).toLocaleString()}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-slate-200 pt-2 mt-1">
+                        <div class="flex items-center border border-slate-200 bg-white rounded-lg p-0.5">
+                            <button onclick="updateCartQty('${c.id}', -1)" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-950 transition"><i data-lucide="minus" class="w-3 h-3"></i></button>
+                            <span class="text-[10px] px-2 font-black text-slate-800">${c.qty}</span>
+                            <button onclick="updateCartQty('${c.id}', 1)" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-950 transition"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                        </div>
+                        <span class="text-[9px] text-slate-400 font-semibold">₹${c.price.toLocaleString()} unit</span>
+                    </div>
+
+                    <!-- Reactive schedule locking mechanism based on coordinates verification -->
+                    ${c.category === 'SERVICES' ? (locationLocked ? `
+                        <div class="bg-emerald-50/70 border border-emerald-100 p-2.5 rounded-xl mt-1 text-left space-y-1.5 animate-fade">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[9px] font-extrabold text-emerald-800 tracking-wider uppercase block">Confirmed Time Slot</label>
+                                <span class="text-[8px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                                    <span class="w-1 h-1 bg-emerald-500 rounded-full animate-ping"></span> Slot Unlocked
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" value="${c.scheduleDate}" onchange="updateServiceSchedule('${c.id}', this.value, null)" class="text-[9px] p-1.5 bg-white border border-emerald-200 rounded-lg outline-none text-slate-700 font-bold">
+                                <select onchange="updateServiceSchedule('${c.id}', null, this.value)" class="text-[9px] p-1.5 bg-white border border-emerald-200 rounded-lg outline-none text-slate-700 font-bold">
+                                    <option value="09:00" ${c.scheduleTime === '09:00' ? 'selected' : ''}>09:00 AM</option>
+                                    <option value="11:30" ${c.scheduleTime === '11:30' ? 'selected' : ''}>11:30 AM</option>
+                                    <option value="14:00" ${c.scheduleTime === '14:00' ? 'selected' : ''}>02:00 PM</option>
+                                    <option value="16:30" ${c.scheduleTime === '16:30' ? 'selected' : ''}>04:30 PM</option>
+                                </select>
+                            </div>
+                            <p class="text-[9px] text-emerald-700 font-bold flex items-center gap-1 mt-1">
+                                <i data-lucide="truck" class="w-3.5 h-3.5"></i> ${travelLabelText}
+                            </p>
+                        </div>
+                    ` : `
+                        <div class="bg-rose-50/70 border border-rose-100 p-2.5 rounded-xl mt-1 text-left space-y-1.5 animate-fade">
+                            <div class="flex items-center gap-1.5 text-rose-800 text-[10px] font-black uppercase tracking-wider">
+                                <i data-lucide="lock" class="w-3.5 h-3.5 text-rose-500"></i>
+                                <span>Schedule Slot Locked</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 leading-normal">Precision coordinates are required before estimating travel time blocks and routing slots.</p>
+                            <button onclick="toggleCartDrawer(); switchTab('services')" class="w-full bg-slate-900 hover:bg-slate-800 text-white text-[9px] font-black py-2 rounded-lg transition duration-150 flex items-center justify-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-rose-400"></i> Drop Doorstep Pin
+                            </button>
+                        </div>
+                    `) : ''}
+                </div>
+            `).join('');
+
+            // Totals compilation
+            const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const taxes = Math.round(subtotal * 0.18);
+            const totalSum = subtotal + taxes;
+
+            document.getElementById('cart-subtotal').innerText = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('cart-taxes').innerText = `₹${taxes.toLocaleString()}`;
+            document.getElementById('cart-total').innerText = `₹${totalSum.toLocaleString()}`;
+
+            const disclaimer = document.getElementById('cart-delivery-disclaimer');
+            if (locationLocked) {
+                disclaimer.innerHTML = `
+                    <div class="flex items-start gap-2 text-slate-600">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                        <div>
+                            <span class="font-extrabold text-slate-800 block">Deliveries unlocked</span>
+                            <span class="text-[9px]">Doorstep coordinates confirmed at ${state.user.address.notes || 'dropped pin'}.</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                disclaimer.innerHTML = `
+                    <div class="flex items-start gap-2 text-rose-700 bg-rose-50/50 p-1.5 rounded-lg w-full">
+                        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                        <span class="text-[9px]">Doorstep coordinates are not confirmed. Drop a pin on the Google map view before checkout.</span>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                updateCartVisuals();
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function initializeLeafletMap() {
+            if (mapObj !== null) {
+                mapObj.invalidateSize();
+                return;
+            }
+
+            // Central Delhi initialization
+            mapObj = L.map('map-viewport').setView([GEOLOCATION_HUB.lat, GEOLOCATION_HUB.lng], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mapObj);
+
+            mapDropMarker = L.marker([GEOLOCATION_HUB.lat, GEOLOCATION_HUB.lng], {
+                draggable: true
+            }).addTo(mapObj);
+
+            mapDropMarker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                updateMapFormCoordinates(pos.lat, pos.lng);
+            });
+
+            mapObj.on('click', function(e) {
+                const pos = e.latlng;
+                mapDropMarker.setLatLng(pos);
+                updateMapFormCoordinates(pos.lat, pos.lng);
+            });
+
+            updateMapFormCoordinates(GEOLOCATION_HUB.lat, GEOLOCATION_HUB.lng);
+        }
+
+        function updateMapFormCoordinates(lat, lng) {
+            document.getElementById('locked-coordinates-text').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            const center = GEOLOCATION_HUB;
+            const deltaLat = lat - center.lat;
+            const deltaLng = lng - center.lng;
+            const kmDistance = Math.sqrt(deltaLat * deltaLat + deltaLng * deltaLng) * 111.3;
+            const minutesTransit = Math.round(15 + kmDistance * 4.5);
+
+            const labelBox = document.getElementById('map-travel-estimation-banner');
+            labelBox.innerHTML = `Estimated travel period: <strong>~${minutesTransit} mins</strong> from our CP logistics base (approx. <strong>${kmDistance.toFixed(2)} km</strong> distance)`;
+        }
+
+        function flyToLocation(spot) {
+            const coordinatesList = {
+                cp: { lat: 28.6304, lng: 77.2177 },
+                saket: { lat: 28.5244, lng: 77.2066 },
+                karolbagh: { lat: 28.6517, lng: 77.1907 },
+                gurugram: { lat: 28.4951, lng: 77.0878 },
+                noida: { lat: 28.6219, lng: 77.3794 }
+            };
+
+            const data = coordinatesList[spot];
+            if (data && mapObj) {
+                mapObj.flyTo([data.lat, data.lng], 14, { animate: true, duration: 1.5 });
+                mapDropMarker.setLatLng([data.lat, data.lng]);
+                updateMapFormCoordinates(data.lat, data.lng);
+                triggerToast(`Panned over local region: ${spot.toUpperCase()}`, "info");
+            }
+        }
+
+        function getUserCoordinates() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (mapObj) {
+                        mapObj.flyTo([lat, lng], 15);
+                        mapDropMarker.setLatLng([lat, lng]);
+                        updateMapFormCoordinates(lat, lng);
+                        triggerToast("Acquired structural location parameters", "success");
+                    }
+                }, () => {
+                    const mockLat = 28.58 + (Math.random() - 0.5) * 0.1;
+                    const mockLng = 77.22 + (Math.random() - 0.5) * 0.1;
+                    if (mapObj) {
+                        mapObj.flyTo([mockLat, mockLng], 14);
+                        mapDropMarker.setLatLng([mockLat, mockLng]);
+                        updateMapFormCoordinates(mockLat, mockLng);
+                        triggerToast("Precise geolocation access denied. Panned close to Delhi instead", "warning");
+                    }
+                });
+            }
+        }
+
+        function confirmPrecisionLocation() {
+            if (!state.user.loggedIn) {
+                triggerOnboardingGate();
+                return;
+            }
+
+            const rawCoordsText = document.getElementById('locked-coordinates-text').value;
+            const parts = rawCoordsText.split(',');
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
+            const notes = document.getElementById('target-address-metadata').value.trim();
+
+            if (isNaN(lat) || isNaN(lng)) {
+                triggerToast("Drop standard map pointer pins to lock coordinates", "warning");
+                return;
+            }
+
+            const center = GEOLOCATION_HUB;
+            const deltaLat = lat - center.lat;
+            const deltaLng = lng - center.lng;
+            const kmDistance = Math.sqrt(deltaLat * deltaLat + deltaLng * deltaLng) * 111.3;
+            const minutesTransit = Math.round(15 + kmDistance * 4.5);
+
+            state.user.address = {
+                lat: lat,
+                lng: lng,
+                notes: notes || "Doorstep Pin Lock confirmed",
+                distanceKm: kmDistance.toFixed(1),
+                travelTimeMins: minutesTransit
+            };
+
+            broadcastFirebaseEvent("Routing Spatial Hub", `Locked delivery gate coordinate parameters. Distance calculated: ${kmDistance.toFixed(1)} km.`, "success");
+            triggerToast("Location confirmed!", "success");
+
+            updateCartVisuals();
+            switchTab('home');
+        }
+
+        function initiateCheckoutSequence() {
+            if (!state.user.loggedIn) {
+                triggerOnboardingGate();
+                return;
+            }
+
+            if (!state.user.address) {
+                triggerToast("Ensure precise doorstep map pins are locked first", "warning");
+                switchTab('services');
+                return;
+            }
+
+            if (!state.user.phoneVerified) {
+                openOtpModal();
+            } else {
+                openPaymentModal();
+            }
+        }
+
+        function openOtpModal() {
+            state.otpState = "PHONE";
+            document.getElementById('otp-phone-view').classList.remove('hidden');
+            document.getElementById('otp-code-view').classList.add('hidden');
+            document.getElementById('otp-submit-btn').innerText = "Send OTP Code";
+
+            document.getElementById('otp-phone-input').value = "";
+            document.getElementById('otp-code-input').value = "";
+
+            const modal = document.getElementById('otp-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeOtpModal() {
+            document.getElementById('otp-modal').classList.add('hidden');
+            document.getElementById('otp-modal').classList.remove('flex');
+        }
+
+        function handleOtpSubmit() {
+            if (state.otpState === "PHONE") {
+                const phone = document.getElementById('otp-phone-input').value.trim();
+                if (phone.length < 10 || isNaN(phone)) {
+                    triggerToast("Enter active 10-digit Indian phone lines", "warning");
+                    return;
+                }
+
+                state.tempPhone = "+91 " + phone;
+                state.otpState = "CODE";
+
+                document.getElementById('otp-phone-view').classList.add('hidden');
+                document.getElementById('otp-code-view').classList.remove('hidden');
+                document.getElementById('otp-submit-btn').innerText = "Verify Code (1234)";
+
+                broadcastFirebaseEvent("Sms Security Gateway", `Verification code sent to ${state.tempPhone}. Input default bypass code '1234'`, "info");
+                triggerToast("OTP Dispatched", "info");
+            } else {
+                const code = document.getElementById('otp-code-input').value.trim();
+                if (code !== "1234") {
+                    triggerToast("Bypass security code must match '1234'", "error");
+                    return;
+                }
+
+                state.user.phone = state.tempPhone;
+                state.user.phoneVerified = true;
+
+                closeOtpModal();
+                renderSettingsProfile();
+                broadcastFirebaseEvent("Sms Security Gateway", `Phone verified. Locked verified parameters with ${state.user.phone}`, "success");
+                triggerToast("Identity Verified!", "success");
+
+                setTimeout(openPaymentModal, 200);
+            }
+        }
+
+        function openPaymentModal() {
+            const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+            const taxes = Math.round(subtotal * 0.18);
+            const totalSum = subtotal + taxes;
+
+            document.getElementById('payment-price-tag').innerText = `₹${totalSum.toLocaleString()}`;
+
+            const txn = "TXN-" + Math.floor(100000 + Math.random() * 900000);
+            const upiUrl = `upi://pay?pa=antinna@okaxis&pn=Antinna%20Ecosystem&am=${totalSum}&cu=INR&tr=${txn}`;
+
+            document.getElementById('payment-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+            document.getElementById('payment-txn-ref').innerText = `Ref: ${txn}`;
+
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('payment-modal').classList.remove('flex');
+        }
+
+        function confirmMockPayment(isSuccess) {
+            closePaymentModal();
+            toggleCartDrawer();
+
+            if (isSuccess) {
+                const subtotal = state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0);
+                const taxes = Math.round(subtotal * 0.18);
+                const totalSum = subtotal + taxes;
+
+                const hasServices = state.cart.some(i => i.category === 'SERVICES');
+                const hasProducts = state.cart.some(i => i.category !== 'SERVICES');
+                let classType = "Combined Setup";
+                if (hasServices && !hasProducts) classType = "On-Demand Service";
+                if (!hasServices && hasProducts) classType = "Hardware Dispatch";
+
+                state.activeOrder = {
+                    id: "ANT-X" + Math.floor(1000 + Math.random() * 9000),
+                    classification: classType,
+                    summary: state.cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+                    price: totalSum,
+                    stepIndex: 0,
+                    address: state.user.address,
+                    timeline: getStatusNodes(classType)
+                };
+
+                state.cart = [];
+                updateCartVisuals();
+
+                broadcastFirebaseEvent("Payment Gateway", `Transaction captured via Google Pay UPI. Creating order dispatches.`, "success");
+                triggerToast("Order Completed Successfully!", "success");
+
+                switchTab('orders');
+            } else {
+                broadcastFirebaseEvent("Payment Gateway", "UPI checkout trace aborted or failed. Please scan or attempt authorize steps again.", "error");
+                triggerToast("Payment failed", "error");
+            }
+        }
+
+        function getStatusNodes(classification) {
+            if (classification === "On-Demand Service") {
+                return [
+                    { title: "Booking Placed", desc: "Technician slots locked", updateTime: "Just Now" },
+                    { title: "Staff Assigned", desc: "Expert chosen from pool", updateTime: "Pending" },
+                    { title: "In Transit", desc: "Arriving with tools", updateTime: "Pending" },
+                    { title: "Work Commenced", desc: "Onsite installation underway", updateTime: "Pending" },
+                    { title: "Completed", desc: "Setup verified & certified", updateTime: "Pending" }
+                ];
+            } else if (classification === "Hardware Dispatch") {
+                return [
+                    { title: "Confirmed", desc: "Warehouse stock locked", updateTime: "Just Now" },
+                    { title: "Packed", desc: "Quality checks finalized", updateTime: "Pending" },
+                    { title: "Dispatched", desc: "Assigned to logistics fleet", updateTime: "Pending" },
+                    { title: "Out for Delivery", desc: "Approaching lock destination", updateTime: "Pending" },
+                    { title: "Delivered", desc: "Signature captured at gate", updateTime: "Pending" }
+                ];
+            } else {
+                return [
+                    { title: "Order Confirmed", desc: "Fittings secured & schedules locked", updateTime: "Just Now" },
+                    { title: "Fleet Dispatched", desc: "Logistics truck & technician moving", updateTime: "Pending" },
+                    { title: "At Doorstep Pin", desc: "Began gate delivery", updateTime: "Pending" },
+                    { title: "Setup Commenced", desc: "Fitting & wiring installations", updateTime: "Pending" },
+                    { title: "Setup Verified", desc: "Delivery complete, service active", updateTime: "Pending" }
+                ];
+            }
+        }
+
+        function renderTimelineUI() {
+            const emptyView = document.getElementById('empty-orders-view');
+            const trackerCard = document.getElementById('active-tracker-card');
+            
+            const desktopBadge = document.getElementById('sidebar-order-badge');
+            const mobileBadge = document.getElementById('mobile-order-badge');
+
+            if (!state.activeOrder) {
+                emptyView.classList.remove('hidden');
+                trackerCard.classList.add('hidden');
+                desktopBadge.classList.add('hidden');
+                mobileBadge.classList.add('hidden');
+                return;
+            }
+
+            emptyView.classList.add('hidden');
+            trackerCard.classList.remove('hidden');
+            
+            desktopBadge.classList.remove('hidden');
+            desktopBadge.innerText = "1";
+            mobileBadge.classList.remove('hidden');
+            mobileBadge.innerText = "1";
+
+            document.getElementById('tracker-order-classification').innerText = state.activeOrder.classification;
+            document.getElementById('tracker-id-label').innerText = state.activeOrder.id;
+            document.getElementById('tracker-summary-label').innerText = state.activeOrder.summary;
+            document.getElementById('tracker-price-label').innerText = `₹${state.activeOrder.price.toLocaleString()}`;
+
+            const listContainer = document.getElementById('tracker-stepper-nodes');
+            listContainer.innerHTML = state.activeOrder.timeline.map((node, index) => {
+                let statusColorClass = "text-slate-450";
+                let badgeClass = "bg-white border-2 border-slate-200 text-slate-400";
+
+                if (index === state.activeOrder.stepIndex) {
+                    statusColorClass = "text-brand-500 font-extrabold";
+                    badgeClass = "bg-brand-500 border-2 border-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-100";
+                } else if (index < state.activeOrder.stepIndex) {
+                    statusColorClass = "text-emerald-600 font-bold";
+                    badgeClass = "bg-emerald-500 border-2 border-emerald-500 text-white";
+                }
+
+                return `
+                    <div class="flex md:flex-col items-start md:items-center text-left md:text-center flex-1 gap-4 md:gap-2 relative">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 text-xs font-black ${badgeClass}">
+                            ${index < state.activeOrder.stepIndex ? '✓' : index + 1}
+                        </div>
+                        <div class="space-y-0.5 text-left md:text-center">
+                            <h4 class="text-xs font-black tracking-tight ${statusColorClass}">${node.title}</h4>
+                            <p class="text-[10px] text-slate-400 leading-snug max-w-[140px]">${node.desc}</p>
+                            <span class="text-[9px] text-slate-400 font-bold block">${node.updateTime}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const nodeCount = state.activeOrder.timeline.length;
+            const completionPercent = (state.activeOrder.stepIndex / (nodeCount - 1)) * 100;
+            const fillLine = document.getElementById('tracker-fill-line');
+
+            if (window.innerWidth >= 768) {
+                fillLine.style.height = "4px";
+                fillLine.style.width = `${completionPercent}%`;
+            } else {
+                fillLine.style.width = "4px";
+                fillLine.style.height = `${completionPercent}%`;
+            }
+
+            lucide.createIcons();
+        }
+
+        function advanceMockOrderState() {
+            if (!state.activeOrder) return;
+
+            const nextIndex = state.activeOrder.stepIndex + 1;
+            if (nextIndex < state.activeOrder.timeline.length) {
+                state.activeOrder.stepIndex = nextIndex;
+                state.activeOrder.timeline[nextIndex].updateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const stageName = state.activeOrder.timeline[nextIndex].title;
+                const stageDesc = state.activeOrder.timeline[nextIndex].desc;
+
+                broadcastFirebaseEvent("Dispatch Fleet System", `Order ${state.activeOrder.id} transitioned to: ${stageName}. (${stageDesc})`, "info");
+                triggerToast(`Step Advanced: ${stageName}`, "info");
+
+                renderTimelineUI();
+            } else {
+                triggerToast("Order has reached operational finality", "info");
+            }
+        }
+
+        function openProductDetailModal(id, event) {
+            if (event) event.stopPropagation();
+
+            const item = masterCatalogItems.find(i => i.id === id);
+            if (!item) return;
+
+            const specsHtml = Object.entries(item.specs).map(([key, value]) => `
+                <div class="flex justify-between py-2 border-b border-slate-50 text-xs text-left">
+                    <span class="text-slate-400 font-semibold">${key}</span>
+                    <span class="text-slate-700 font-black">${value}</span>
+                </div>
+            `).join('');
+
+            const content = document.getElementById('product-detail-content');
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 aspect-video flex items-center justify-center">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="bg-brand-50 p-4 rounded-xl border border-brand-100/30 flex gap-3 text-left">
+                        <span class="text-brand-500 mt-0.5"><i data-lucide="shield-check" class="w-5 h-5"></i></span>
+                        <div class="space-y-0.5">
+                            <h5 class="text-xs font-black text-slate-800">Antinna Care Guarantee</h5>
+                            <p class="text-[10px] text-slate-500">Includes replacement guarantees & post-installation diagnostics coverage.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col justify-between text-left">
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-slate-100 text-slate-600 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider">${item.category}</span>
+                                <span class="text-slate-400 text-[10px] font-mono font-bold">${item.sku}</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-900 text-lg leading-snug">${item.name}</h3>
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+                                <span class="text-xs font-bold text-slate-800">${item.rating}</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-[10px] text-slate-400 font-semibold">${item.reviewsCount} customer metrics</span>
+                            </div>
+                        </div>
+
+                        <p class="text-slate-500 text-xs leading-relaxed">${item.description}</p>
+
+                        <div class="space-y-1.5">
+                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance Specifications</h5>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                ${specsHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-4 mt-6 flex justify-between items-center gap-4">
+                        <div>
+                            <span class="text-[9px] text-slate-400 font-bold block uppercase">UNIT COST</span>
+                            <span class="text-xl font-extrabold text-slate-900">₹${item.price.toLocaleString()}</span>
+                        </div>
+                        <button onclick="addToCart('${item.id}'); closeProductDetailModal();" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-brand-500/10 flex items-center justify-center gap-1.5 active:scale-95">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i> Add package item
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('product-detail-modal').classList.remove('hidden');
+            document.getElementById('product-detail-modal').classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById('product-detail-modal').classList.add('hidden');
+            document.getElementById('product-detail-modal').classList.remove('flex');
+        }
+
+        function broadcastFirebaseEvent(sender, body, type = "info") {
+            const entry = {
+                id: "NOTIF-" + Date.now(),
+                sender: sender,
+                body: body,
+                type: type,
+                time: "Just Now"
+            };
+
+            state.notifications.unshift(entry);
+            syncNotificationUI();
+
+            document.getElementById('sidebar-notif-indicator').classList.remove('hidden');
+            document.getElementById('mobile-notif-indicator').classList.remove('hidden');
+        }
+
+        function syncNotificationUI() {
+            const container = document.getElementById('notification-drawer-items-container');
+            if (state.notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="py-16 text-center text-slate-400 space-y-1">
+                        <i data-lucide="bell-off" class="w-8 h-8 mx-auto opacity-50"></i>
+                        <p class="text-xs font-semibold">Inbox is clear.</p>
+                        <p class="text-[10px]">Real-time FCM updates appear as statuses advance.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.notifications.map(n => {
+                let badgeStyle = "bg-blue-50 text-blue-700 border-blue-100";
+                let iconSymbol = "info";
+
+                if (n.type === "success") {
+                    badgeStyle = "bg-emerald-50 text-emerald-800 border-emerald-100";
+                    iconSymbol = "check-circle";
+                } else if (n.type === "warning") {
+                    badgeStyle = "bg-amber-50 text-amber-800 border-amber-100";
+                    iconSymbol = "alert-triangle";
+                } else if (n.type === "error") {
+                    badgeStyle = "bg-rose-50 text-rose-800 border-rose-100";
+                    iconSymbol = "alert-octagon";
+                } else if (n.type === "system") {
+                    badgeStyle = "bg-slate-50 text-slate-700 border-slate-200";
+                    iconSymbol = "cpu";
+                }
+
+                return `
+                    <div class="border border-slate-100 bg-white/50 p-3 rounded-2xl text-left space-y-1 hover:border-slate-200 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black text-slate-800">${n.sender}</span>
+                            <span class="text-[9px] text-slate-400 font-bold">${n.time}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">${n.body}</p>
+                        <span class="border px-2 py-0.5 rounded-full inline-flex items-center gap-1 text-[8px] font-bold ${badgeStyle} leading-none mt-1">
+                            <i data-lucide="${iconSymbol}" class="w-2.5 h-2.5"></i>
+                            ${n.type.toUpperCase()} LOG
+                        </span>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function toggleNotificationDrawer() {
+            const drawer = document.getElementById('notification-drawer');
+            const overlay = document.getElementById('notification-drawer-overlay');
+
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                
+                document.getElementById('sidebar-notif-indicator').classList.add('hidden');
+                document.getElementById('mobile-notif-indicator').classList.add('hidden');
+                syncNotificationUI();
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function clearAllNotifications() {
+            state.notifications = [];
+            syncNotificationUI();
+            triggerToast("Notification drawer cleared", "info");
+        }
+
+        function triggerToast(message, type = "success") {
+            const shelf = document.getElementById('toast-notif-shelf');
+            const uniqueId = "toast-" + Date.now();
+
+            let iconSymbol = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>`;
+            if (type === "error") {
+                iconSymbol = `<i data-lucide="alert-octagon" class="w-4 h-4 text-rose-500"></i>`;
+            } else if (type === "info") {
+                iconSymbol = `<i data-lucide="info" class="w-4 h-4 text-brand-500"></i>`;
+            } else if (type === "warning") {
+                iconSymbol = `<i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>`;
+            }
+
+            const markup = `
+                <div id="${uniqueId}" class="bg-white border border-slate-100 p-3.5 rounded-2xl shadow-floating flex items-center gap-2.5 pointer-events-auto animate-slide-up duration-200">
+                    ${iconSymbol}
+                    <span class="text-xs font-bold text-slate-800">${message}</span>
+                </div>
+            `;
+
+            shelf.insertAdjacentHTML('beforeend', markup);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                const node = document.getElementById(uniqueId);
+                if (node) node.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
